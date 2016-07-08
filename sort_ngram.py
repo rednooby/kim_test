@@ -41,7 +41,7 @@ d2=[(x['freq'],x) for x in dictList]
 d3 = sorted(d2,reverse=True)
 d4 = [y['data'] for (x,y) in d3]
 
-for ngram in d4:
+for ngram in d4[0:500]:
 	for byte in ngram:
 		fo.write(str(int(byte,16))+' ')
 		#fo.write('%d ' % int(byte,16))
