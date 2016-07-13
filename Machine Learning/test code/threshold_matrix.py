@@ -1,19 +1,19 @@
 import numpy as np
 
 
-def threshold_matrix(matrix):
-	row, col = matrix.size/matrix[0].size, matrix[0].size
+def threshold_matrix(array):
+	row, col = len(array), len(array[0])
 
 	for i in range(row):
 		for j in range(col):
-			if matrix.item(i,j) < 0:
-				matrix[i,j] = 0
+			if array[i][j] < 0:
+				array[i][j] = 0
 			else:
-				matrix[i,j] = 1
-	y=matrix
+				array[i][j] = 1
+	y=array
 	return y
 
-a = np.matrix('-1 2; 3 -4; 5 6')
+a = np.array([[-1,2],[3,-4],[5,6]])
 b=threshold_matrix(a)
 
 print b
