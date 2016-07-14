@@ -269,10 +269,19 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 			bestNetwork.bestTestErrFun = min_testErrFun
 			bestNetwork.bestTestErrFunRate = min_testErrFunRate
 
-
-#def ApplyNeuralNetwork(network, data):
-	print 'ApplyNeuralNetwork(bestNetwork, trainInput)'
-	print ApplyNeuralNetwork(bestNetwork, trainInput)
+		print '\twhile errFunChg > errFunChgLmt and weightChg > weightChgLmt and round_count < maxRound:'
+		print '\terrFunChg'
+		print errFunChg
+		print '\terrFunChgLmt'
+		print errFunChgLmt
+		print '\tweightChg'
+		print weightChg
+		print '\tweightChgLmt'
+		print weightChgLmt
+		print '\tround_count'
+		print round_count
+		print 'maxRound'
+		print maxRound
 
 	return bestNetwork
 
@@ -306,9 +315,9 @@ testnetwork = NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxR
 	bestTestErrFun=None
 	bestTestErrFunRate=None
 '''
-print '---------------------------------'
-print testnetwork.w
-print testnetwork.bestTrainErrFun
-print testnetwork.bestTrainErrFunRate
+#print '---------------------------------'
+#print testnetwork.w
+#print testnetwork.bestTrainErrFun
+#print testnetwork.bestTrainErrFunRate
 
 
