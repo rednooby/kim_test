@@ -24,7 +24,6 @@ dictList = []
 
 for key, value in ngram_dict.iteritems():
 	temp = []
-	aKey = key
 	temp.append(key[0:2])
 	temp.append(key[2:4])
 	temp.append(key[4:6])
