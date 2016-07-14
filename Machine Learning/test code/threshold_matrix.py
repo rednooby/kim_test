@@ -12,8 +12,3 @@ def threshold_matrix(array):
 				array[i][j] = 1
 	y=array
 	return y
-
-a = np.array([[-1,2],[3,-4],[5,6]])
-b=threshold_matrix(a)
-
-print b

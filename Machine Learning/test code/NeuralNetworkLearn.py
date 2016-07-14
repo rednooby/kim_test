@@ -138,6 +138,7 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 		last_errFun = np.mean(err)
 
 
+
 		# back Propagation
 		delta = []
 		for i in range(layerLen):
@@ -160,7 +161,7 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 		# update
 		weightChg=0
 		for i in range(layerLen-1,0,-1):
-			change = learnRate/m * OutDelta[i]
+			change = learnRate/float(m) * OutDelta[i]
 			network.w[i-1] = network.w[i-1] - change
 			weightChg = max(weightChg, abs(change).max())
 		round_count = round_count+1
@@ -268,20 +269,6 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 			bestNetwork.bestTrainErrFunRate = min_trainErrFunRate
 			bestNetwork.bestTestErrFun = min_testErrFun
 			bestNetwork.bestTestErrFunRate = min_testErrFunRate
-
-		print '\twhile errFunChg > errFunChgLmt and weightChg > weightChgLmt and round_count < maxRound:'
-		print '\terrFunChg'
-		print errFunChg
-		print '\terrFunChgLmt'
-		print errFunChgLmt
-		print '\tweightChg'
-		print weightChg
-		print '\tweightChgLmt'
-		print weightChgLmt
-		print '\tround_count'
-		print round_count
-		print 'maxRound'
-		print maxRound
 
 	return bestNetwork
 
