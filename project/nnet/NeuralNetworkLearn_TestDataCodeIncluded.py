@@ -10,13 +10,17 @@ class Network:
 	layerLen=None
 	trainErrFun=None
 	trainErrFunRate=None
+	testErrFun=None
+	testErrFunRate=None
 	w=None
 
 	bestTrainErrFun=None
 	bestTrainErrFunRate=None
+	bestTestErrFun=None
+	bestTestErrFunRate=None
 
 
-def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,trainInput,trainDesiredOutput):
+def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,trainInput,trainDesiredOutput,testInput,testDesiredOutput):
 	inputRow, inputCol = len(trainInput), len(trainInput[0])
 	outputRow, outputCol = len(trainDesiredOutput), len(trainDesiredOutput[0])
 
@@ -41,6 +45,8 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 
 	network.trainErrFun = [];
 	network.trainErrFunRate = [];
+	network.testErrFun = [];
+	network.testErrFunRate = [];
 
 	bestNetwork=network
 
@@ -175,15 +181,63 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 		
 		errFunChg=abs(trainErrFun - last_errFun)
 
+		# forwardProp, error(test)
+		test_m = len(testInput) # number of examples(test)
+
+		out = []
+		for i in range(layerLen):
+			out.append(None)
+		out[0] = []
+		for i in range(test_m):
+			out[0].append(-1)
+		out[0] = [out[0]]
+		for test in testInput.transpose().tolist():
+			out[0].append(test)
+		out[0] = np.array(out[0])
+		z=[]
+		for i in range(layerLen):
+			z.append(None)
+		for i in range(layerLen-1):
+			z[i+1] = np.dot(network.w[i],out[i]) # z = w*o
+			temp_list = []
+			for j in range(test_m):
+				temp_list.append(-1)
+			out[i+1]=[temp_list]
+			for z_val in sigmoid(z[i+1]).tolist():
+				out[i+1].append(z_val)
+			out[i+1] = np.array(out[i+1])
+		output = np.array(out[layerLen-1][1:])
+		
+		testErr = np.mean((output-np.array(testDesiredOutput).transpose()) * (output-np.array(testDesiredOutput).transpose()), axis=0)
+		testErrFun=np.mean(testErr)
+		max_values = [i.max() for i in output.transpose()]
+		temp_output = []
+		for i in range(len(output)):
+			temp_output.append(max_values)
+		temp_output = np.array(temp_output)
+		output_match = output == temp_output
+		correct=testDesiredOutput.transpose() == output_match
+		correct_int=[]
+		for i in range(len(correct)):
+			correct_int.append([1 if val==True else 0 for val in correct[i]])
+		correct_int = np.array(correct_int)
+		testErrFunRate = 1-np.mean(correct_int)
+		
+		network.testErrFun.append(testErrFun)
+		network.testErrFunRate.append(testErrFunRate)
 		
 		# lowest training error
 		if trainErrFun < min_trainErrFun:
 			min_trainErrFun = trainErrFun
 			min_trainErrFunRate = trainErrFunRate
+			min_testErrFun = testErrFun
+			min_testErrFunRate = testErrFunRate
 			
 		
 			bestNetwork = network
 			bestNetwork.bestTrainErrFun = min_trainErrFun
 			bestNetwork.bestTrainErrFunRate = min_trainErrFunRate
+			bestNetwork.bestTestErrFun = min_testErrFun
+			bestNetwork.bestTestErrFunRate = min_testErrFunRate
 
 	return bestNetwork
