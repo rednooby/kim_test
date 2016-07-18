@@ -20,7 +20,7 @@ s = data[3:len(data)-4].split(',')
 for element in s:
     vector.append(int(element))
 print vector
-
+vector.append(1)
 con.close()
 
 

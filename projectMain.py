@@ -3,9 +3,14 @@
     version : python 2
     thema : machine learing
 '''
+from multiprocessing import Process
 import mysql.connector
 import pefile
-import mysql
+import time
+import json
+import pymongo
+from pprint import pprint
+from bson.objectid import ObjectId
 
 alphabet = 'abcdef'
 
@@ -28,42 +33,47 @@ class _Machine:
         self.LstDict = dict()              # type of dictionary
         self.Lastlist = list()             # type of list
         self.TempString = ""               # type of string
-
+        self.testList = []
     def step_0_function(self, target):
-        self.target = target
+        self.target = target # file_Name
         self.binary_value = open(self.target, 'rb').read()
-        self.hex_value = self.binary_value.encode('hex')
+        self.hex_value = self.binary_value.encode('hex') # type : string
+        ''' 00 0E EA 00'''
+        # end of step_02
 
     def step_1_function(self):
-        testList = []  # list
         s = ""  # string
         num = 0
 
         for i in range(0, len(self.hex_value) - 32, 32):
+            testList = []
             for j in range(i, i + 31, 2):
                 s += self.hex_value[j:j + 2]
                 testList.append(s)
                 s = ""
             self.hex_dict[num] = testList
             num += 16
-            testList = []
+
         self.e_lfanew_string += str(self.hex_dict[48][13])
         self.e_lfanew_string += str(self.hex_dict[48][12])
-        #print "self.e_lfanew_string => {}".format(self.e_lfanew_string)
+        # end of step_1
 
     def step_2_function(self):
         # NT _header first
         z = 3
         for index in range(0, len(self.e_lfanew_string)):
+            # 문자 일 경우
             if self.e_lfanew_string[index].lower() in alphabet:
                 temp = alphabet.find(self.e_lfanew_string[index].lower()) + 10
                 self.e_lfanew_int += temp * (16 ** z)
                 z -= 1
+            # 숫자 일 경우
             else:
                 self.e_lfanew_int += (int(self.e_lfanew_string[index]) * (16 ** z))
                 z -= 1
         #print "self.e_lfanew_int => {}".format(self.e_lfanew_int)
         #print "self.e_lfanew_int => hex_{}".format(hex(self.e_lfanew_int))
+        # end of step_2
 
     def step_3_function(self, s):
         test = s
@@ -82,7 +92,7 @@ class _Machine:
         if index == 0:  # index
             temp += str(self.hex_dict[test][1])
             temp += str(self.hex_dict[test][0])
-        else:  #
+        else:  # index != 0
             if index + 1 < 16:
                 temp += str(self.hex_dict[test - index][index + 1])
                 temp += str(self.hex_dict[test - index][index])
@@ -157,98 +167,61 @@ class _Machine:
             count += 1
         print count
 
-        '''
-        f_w = open("sample_1.txt", "w")
-        u = 0
-        count = 0
-        for key in range(self.textStart, self.textEnd + 1, 16):
-            for i in range(0, 13):
-                tempString = ""
-                tempString += self.hex_dict[key][i + 0]
-                tempString += " "
-                tempString += self.hex_dict[key][i + 1]
-                tempString += " "
-                tempString += self.hex_dict[key][i + 2]
-                tempString += " "
-                tempString += self.hex_dict[key][i + 3]
-                self.hex_list.append(tempString)
-                f_w.write(tempString)
-                f_w.write('\n')
-        for k, v in self.hex_dict.items():
-            print k, v
-        print count
-        print self.hex_list
-        # [ "00 00 00 00" ,
-        '''
     def step_6_function(self):
-        k = 0
+        ngram_dict = dict() # dictionary[key:value]
+        for i in range(len(self.hex_list)-8):
+            ngram = str(self.hex_list[i])
+            if ngram in ngram_dict:
+                ngram_dict[ngram] += 1
+            else:
+                ngram_dict[ngram] = 1
+
+        dictList = [] # type of dictList is list
+
+        for key, value in ngram_dict.iteritems():
+            temp = []
+            temp.append(value)
+            temp.append(key)
+            dictList.append(temp)
+
+        # sort
+        d1 = sorted(dictList, reverse=True)
+        d2 = d1[0:500]
+        d3 = [l[1] for l in d2]
+        fo = open("sample_2.txt", "w")
         count = 0
-        temp = []
-        while len(self.hex_list) != 0:
-            string_ = self.hex_list[0]
-            if string_ in self.hex_list:
-                s = self.hex_list.count(string_)
-                if string_ not in temp:
-                    temp.append(string_)
-                    self.hex_list_result.append(string_ + " " +str(s))
-                    count += 1
-                self.hex_list.remove(string_)
-
-
-        '''
-        for i in range(0, len(self.hex_list)):
-            count = 0
-            s = ""
-            for j in range(i, len(self.hex_list)):
-                if self.hex_list[i] == self.hex_list[j] :
-                    count += 1
-            s += str(self.hex_list[i])
-            if count != 0 :
-                k+=1
-                s += " "
-                s += str(count)
-                self.hex_list_result.append(s)
-        '''
-    def step_7_function(self, a):
-
-        for i in range(0, len(self.hex_list)):
-            sample = 0
-            s = ""
-            for j in range(i, a):
-                if self.hex_list[i] == self.hex_list[j]:
-                    sample += 1
-            if sample != 0:
-                s += str(self.hex_list[i])
-                s += " "
-                s += str(sample)
-            if s not in self.Lastlist[0:i]:
-                self.Lastlist.append(s)
-
+        list1 = []
+        for ngram in d3:
+            '''
+            data = ""
+            data = data + str(int(ngram[0:2], 16)) + ',' + str(int(ngram[3:5], 16)) + ',' + str(
+                int(ngram[6:8], 16)) + ',' + str(int(ngram[9:11], 16)) + ','
+            list1.append(data)
+            self.TempString += data
+            fo.write(data)
+            count += 1
+            '''
+            self.testList.append((int(ngram[0:2], 16)))
+            self.testList.append((int(ngram[3:5], 16)))
+            self.testList.append((int(ngram[6:8], 16)))
+            self.testList.append((int(ngram[9:11], 16)))
+        print list1
+        fo.close()
+    '''
     def stringWeight(self):
         fi_w = open("sample_2.txt", "w")
         for inline in self.hex_list_result:
             fi_w.write(inline)
             fi_w.write('\n')
         fi_w.close()
-
+    '''
+    '''
     def readAndWrite(self):
         fi = open("sample_2.txt", "r")
-        '''
-        4D 4D F5 87 1
-        4D 5A 90 00 1
-        4D 5A F5 87 1
-        4D 5A 4E B9 1
-        4D 90 01 00 1
-        4D 90 75 08 1
-        4D 90 38 01 2
-        4D 90 38 41 8
-        ....
-        '''
+
         # output file
         fo = open("sample_sorted.txt", "w")
-        '''
-        0 0 0 0 244 135 185 211 185 211 244 ....
-        '''
+
         lines = fi.readlines()
 
         # remove '\n'
@@ -269,12 +242,25 @@ class _Machine:
 
         for ngram in d4[0:500]:
             for byte in ngram:
-                fo.write(str(int(byte, 16)) + ' ')
+                fo.write(str(int(byte, 16)) + ',')
                 self.TempString += str(int(byte, 16)) + ','
-
+        fi.close()
+        fo.close()
+        '''
     def dataBase(self):
-        # database ----------------------------------------------------------------------
+        print self.TempString
+        connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
+        db = connection.test  # testDB 접근
+        collection = db.testCollection  # testDB의 testCollection 접근
+        data = collection.find_one({"ngram": self.testList})
+        if data == None:
+            collection.insert({"ngram": self.testList})
+        else:
+            print "있는 데이터 입니다."
 
+
+        # database ----------------------------------------------------------------------
+        '''  MySQL Databaseb
         con = mysql.connector.connect(host='localhost',
                                       user='root',
                                       password='1111',
@@ -282,7 +268,7 @@ class _Machine:
 
         # 데이터베이스에 데이터가 있는지 확인을 먼저
         cur = con.cursor()
-        test = "select exists ( select * from s1 where hex = "
+        test = "select exists ( select * from s1 where a = "
         test += "'"
         test += self.TempString
         test += "'"
@@ -291,7 +277,7 @@ class _Machine:
         data = cur.fetchone()
         result = data[0]
 
-        if result == 0:  # 데이터 베이스에 존재하지 않기 대문에 바이러스 토탈로 넘긴다.
+        if result == 0:
             print "result => {}, ?".format(result)
             insertstmt = ""
             insertstmt += "insert into s1 (a) values ("
@@ -301,15 +287,18 @@ class _Machine:
             insertstmt += ");"
             cur.execute(insertstmt)
             con.commit()
-        else:  # 데이터 베이스에 존재하기 바이러스 인걸로 끝낸다.
+        else:
             print "result => {}, 데이터가 이미 존재한다.".format(result)
 
         con.close()
-
+         '''
 
 def main():
     stu = _Machine()
-    t = "test.exe"
+    t = "C:\\Users\\kimjh\\Desktop\\kimj\\test1.exe"
+
+    start_time = time.time()
+
     stu.step_0_function(t)
     stu.step_1_function()
     stu.step_2_function()
@@ -317,9 +306,13 @@ def main():
     stu.step_4_function()
     stu.step_5_function()
     stu.step_6_function()
-    stu.stringWeight()
-    stu.readAndWrite()
+    # stu.stringWeight()
+    # stu.readAndWrite()
     stu.dataBase()
+    print stu.TempString
+    end_time = time.time()
+
+    print end_time - start_time
 
 if __name__ == "__main__":
     main()
