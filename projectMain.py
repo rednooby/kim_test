@@ -53,9 +53,14 @@ class _Machine:
                 s = ""
             self.hex_dict[num] = testList
             num += 16
-
-        self.e_lfanew_string += str(self.hex_dict[48][13])
-        self.e_lfanew_string += str(self.hex_dict[48][12])
+        try:
+            self.e_lfanew_string += str(self.hex_dict[48][13])
+            self.e_lfanew_string += str(self.hex_dict[48][12])
+        except:
+            print "error"
+            return 0
+        else:
+            return 1
         # end of step_1
 
     def step_2_function(self):
@@ -77,83 +82,89 @@ class _Machine:
 
     def step_3_function(self, s):
         test = s
-        pe = pefile.PE(test)
-        self.sizeOfOptionalHeader = pe.FILE_HEADER.SizeOfOptionalHeader
+        try:
+            pe = pefile.PE(test)
+        except:
+            print "error"
+            return 0
+        else:
+            self.sizeOfOptionalHeader = pe.FILE_HEADER.SizeOfOptionalHeader
 
-        # print stu.sizeOfOptionalHeader
-        temp = 4 + 20 + self.sizeOfOptionalHeader
-        self.SectionHeaderTextPosition = temp + self.e_lfanew_int
-        test = self.SectionHeaderTextPosition + 8 + 12 # position
-        test_1  = self.SectionHeaderTextPosition + 8 + 8 # size
+            # print stu.sizeOfOptionalHeader
+            temp = 4 + 20 + self.sizeOfOptionalHeader
+            self.SectionHeaderTextPosition = temp + self.e_lfanew_int
+            test = self.SectionHeaderTextPosition + 8 + 12 # position
+            test_1  = self.SectionHeaderTextPosition + 8 + 8 # size
 
-        '''  <<< start >>> '''
-        index = test % 16
-        temp=""
-        if index == 0:  # index
-            temp += str(self.hex_dict[test][1])
-            temp += str(self.hex_dict[test][0])
-        else:  # index != 0
-            if index + 1 < 16:
-                temp += str(self.hex_dict[test - index][index + 1])
-                temp += str(self.hex_dict[test - index][index])
-            else:
-                temp += str(self.hex_dict[(test - index) + 16][0])
-                temp += str(self.hex_dict[test - index][index])
+            '''  <<< start >>> '''
+            index = test % 16
+            temp=""
+            if index == 0:  # index
+                temp += str(self.hex_dict[test][1])
+                temp += str(self.hex_dict[test][0])
+            else:  # index != 0
+                if index + 1 < 16:
+                    temp += str(self.hex_dict[test - index][index + 1])
+                    temp += str(self.hex_dict[test - index][index])
+                else:
+                    temp += str(self.hex_dict[(test - index) + 16][0])
+                    temp += str(self.hex_dict[test - index][index])
 
-        temp = ""
-        temp += str(self.hex_dict[test - index][index + 1])
-        temp += str(self.hex_dict[test - index][index])
+            temp = ""
+            temp += str(self.hex_dict[test - index][index + 1])
+            temp += str(self.hex_dict[test - index][index])
 
-        z = len(temp) - 1
-        for index in range(0, len(temp)):
-            if temp[index].lower() in alphabet:
-                n1 = alphabet.find(temp[index].lower()) + 10
-                self.textStart += n1 * (16 ** z)
-                z -= 1
-            else:
-                self.textStart += (int(temp[index]) * (16 ** z))
-                z -= 1
-                #print "stu.textStart => {}".format(self.textStart)
-                #print "stu.textStart => hex{}".format(hex(self.textStart))
+            z = len(temp) - 1
+            for index in range(0, len(temp)):
+                if temp[index].lower() in alphabet:
+                    n1 = alphabet.find(temp[index].lower()) + 10
+                    self.textStart += n1 * (16 ** z)
+                    z -= 1
+                else:
+                    self.textStart += (int(temp[index]) * (16 ** z))
+                    z -= 1
+                    #print "stu.textStart => {}".format(self.textStart)
+                    #print "stu.textStart => hex{}".format(hex(self.textStart))
 
-        '''  <<< size >>> '''
-        index = test_1 % 16
-        # print index
-        temp = ""
-        if index == 0:  # index
-            temp += str(self.hex_dict[test_1][4])
-            temp += str(self.hex_dict[test_1][3])
-            temp += str(self.hex_dict[test_1][2])
-            temp += str(self.hex_dict[test_1][0])
-        else:  #
-            if index + 1 < 16:
-                temp += str(self.hex_dict[test_1 - index][index + 3])
-                temp += str(self.hex_dict[test_1 - index][index + 2])
-                temp += str(self.hex_dict[test_1 - index][index + 1])
-                temp += str(self.hex_dict[test_1 - index][index + 0])
-            else:
-                temp += str(self.hex_dict[(test_1 - index) + 16][0])
-                temp += str(self.hex_dict[test_1 - index][index])
+            '''  <<< size >>> '''
+            index = test_1 % 16
+            # print index
+            temp = ""
+            if index == 0:  # index
+                temp += str(self.hex_dict[test_1][4])
+                temp += str(self.hex_dict[test_1][3])
+                temp += str(self.hex_dict[test_1][2])
+                temp += str(self.hex_dict[test_1][0])
+            else:  #
+                if index + 1 < 16:
+                    temp += str(self.hex_dict[test_1 - index][index + 3])
+                    temp += str(self.hex_dict[test_1 - index][index + 2])
+                    temp += str(self.hex_dict[test_1 - index][index + 1])
+                    temp += str(self.hex_dict[test_1 - index][index + 0])
+                else:
+                    temp += str(self.hex_dict[(test_1 - index) + 16][0])
+                    temp += str(self.hex_dict[test_1 - index][index])
 
 
-        z = len(temp) - 1
-        for index in range(0, len(temp)):
-            if temp[index].lower() in alphabet:
-                n1 = alphabet.find(temp[index].lower()) + 10
-                self.textSize += n1 * (16 ** z)
-                z -= 1
-            else:
-                self.textSize += (int(temp[index]) * (16 ** z))
-                z -= 1
+            z = len(temp) - 1
+            for index in range(0, len(temp)):
+                if temp[index].lower() in alphabet:
+                    n1 = alphabet.find(temp[index].lower()) + 10
+                    self.textSize += n1 * (16 ** z)
+                    z -= 1
+                else:
+                    self.textSize += (int(temp[index]) * (16 ** z))
+                    z -= 1
 
-                #print "stu.textSize -> {}".format(self.textSize)
-                #print "stu.textSize -> hex_{}".format(hex(self.textSize))
+                    #print "stu.textSize -> {}".format(self.textSize)
+                    #print "stu.textSize -> hex_{}".format(hex(self.textSize))
+            return 1
 
     def step_4_function(self):
         self.textEnd = self.textStart + self.textSize
 
     def step_5_function(self):
-
+        print self.textStart , self.textEnd
         for key in range(self.textStart*2, (self.textEnd*2)-7, 2):
             tempString = ""
             tempString += self.hex_value[key+0:key+2]
@@ -188,76 +199,27 @@ class _Machine:
         d1 = sorted(dictList, reverse=True)
         d2 = d1[0:500]
         d3 = [l[1] for l in d2]
-        fo = open("sample_2.txt", "w")
-        count = 0
-
+        print d3
         for ngram in d3:
-            '''
-            data = ""
-            data = data + str(int(ngram[0:2], 16)) + ',' + str(int(ngram[3:5], 16)) + ',' + str(
-                int(ngram[6:8], 16)) + ',' + str(int(ngram[9:11], 16)) + ','
-            list1.append(data)
-            self.TempString += data
-            fo.write(data)
-            count += 1
-            '''
             self.testList.append((int(ngram[0:2], 16)))
             self.testList.append((int(ngram[3:5], 16)))
             self.testList.append((int(ngram[6:8], 16)))
             self.testList.append((int(ngram[9:11], 16)))
 
-        fo.close()
-    '''
-    def stringWeight(self):
-        fi_w = open("sample_2.txt", "w")
-        for inline in self.hex_list_result:
-            fi_w.write(inline)
-            fi_w.write('\n')
-        fi_w.close()
-    '''
-    '''
-    def readAndWrite(self):
-        fi = open("sample_2.txt", "r")
 
-        # output file
-        fo = open("sample_sorted.txt", "w")
-
-        lines = fi.readlines()
-
-        # remove '\n'
-        newlines = []
-        for line in lines:
-            temp = line.split(' ')
-            temp[-1] = temp[-1][:-1]
-            newlines.append(temp)
-
-        # make dictionary list
-        dictList = []
-        for line in newlines:
-            dictList.append({'data': line[0:4], 'freq': int(line[4])})
-        # sort
-        d2 = [(x['freq'], x) for x in dictList]
-        d3 = sorted(d2, reverse=True)
-        d4 = [y['data'] for (x, y) in d3]
-
-        for ngram in d4[0:500]:
-            for byte in ngram:
-                fo.write(str(int(byte, 16)) + ',')
-                self.TempString += str(int(byte, 16)) + ','
-        fi.close()
-        fo.close()
-        '''
     def dataBase(self):
         print self.TempString
         connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
         db = connection.test  # testDB 접근
         collection = db.employees  # testDB의 testCollection 접근
         data = collection.find_one({"ngram": self.testList})
+
         if data == None:
             collection.insert({"ngram": self.testList})
         else:
+            print data
             print "있는 데이터 입니다."
-
+        print "this is test"
 
         # database ----------------------------------------------------------------------
         '''  MySQL Databaseb
@@ -295,7 +257,7 @@ class _Machine:
 
 def main():
     stu = _Machine()
-    t = "C:\\Users\\kimjh\\Desktop\\kimj\\test.exe"
+    t = "C:\\Users\\Win7\\Desktop\\test\\*"
 
     start_time = time.time()
 
