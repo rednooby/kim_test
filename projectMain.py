@@ -87,8 +87,8 @@ class _Machine:
         test_1  = self.SectionHeaderTextPosition + 8 + 8 # size
 
         '''  <<< start >>> '''
-        index = test % 32
-        temp = ""
+        index = test % 16
+        temp=""
         if index == 0:  # index
             temp += str(self.hex_dict[test][1])
             temp += str(self.hex_dict[test][0])
@@ -117,7 +117,7 @@ class _Machine:
                 #print "stu.textStart => hex{}".format(hex(self.textStart))
 
         '''  <<< size >>> '''
-        index = test_1 % 32
+        index = test_1 % 16
         # print index
         temp = ""
         if index == 0:  # index
@@ -153,7 +153,7 @@ class _Machine:
         self.textEnd = self.textStart + self.textSize
 
     def step_5_function(self):
-        count = 0
+
         for key in range(self.textStart*2, (self.textEnd*2)-7, 2):
             tempString = ""
             tempString += self.hex_value[key+0:key+2]
@@ -164,8 +164,8 @@ class _Machine:
             tempString += " "
             tempString += self.hex_value[key+6:key+8]
             self.hex_list.append(tempString)
-            count += 1
-        print count
+
+
 
     def step_6_function(self):
         ngram_dict = dict() # dictionary[key:value]
@@ -190,7 +190,7 @@ class _Machine:
         d3 = [l[1] for l in d2]
         fo = open("sample_2.txt", "w")
         count = 0
-        list1 = []
+
         for ngram in d3:
             '''
             data = ""
@@ -205,7 +205,7 @@ class _Machine:
             self.testList.append((int(ngram[3:5], 16)))
             self.testList.append((int(ngram[6:8], 16)))
             self.testList.append((int(ngram[9:11], 16)))
-        print list1
+
         fo.close()
     '''
     def stringWeight(self):
@@ -249,9 +249,9 @@ class _Machine:
         '''
     def dataBase(self):
         print self.TempString
-        connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
+        connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
         db = connection.test  # testDB 접근
-        collection = db.testCollection  # testDB의 testCollection 접근
+        collection = db.employees  # testDB의 testCollection 접근
         data = collection.find_one({"ngram": self.testList})
         if data == None:
             collection.insert({"ngram": self.testList})
@@ -295,7 +295,7 @@ class _Machine:
 
 def main():
     stu = _Machine()
-    t = "C:\\Users\\kimjh\\Desktop\\kimj\\test1.exe"
+    t = "C:\\Users\\kimjh\\Desktop\\kimj\\test.exe"
 
     start_time = time.time()
 
@@ -306,9 +306,10 @@ def main():
     stu.step_4_function()
     stu.step_5_function()
     stu.step_6_function()
+    print stu.testList
     # stu.stringWeight()
     # stu.readAndWrite()
-    stu.dataBase()
+    # stu.dataBase()
     print stu.TempString
     end_time = time.time()
 
