@@ -1,3 +1,8 @@
+'''
+older version
+'''
+
+
 import numpy as np
 from NeuralNetworkLearn import NeuralNetworkLearn
 from ApplyNeuralNetwork import ApplyNeuralNetwork

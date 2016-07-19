@@ -1,3 +1,7 @@
+'''
+derivative of sigmoid function
+'''
+
 from sigmoid import sigmoid
 
 def deriv_sigmoid(x):

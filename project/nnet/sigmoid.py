@@ -1,3 +1,7 @@
+'''
+sigmoid function
+'''
+
 import numpy as np
 
 def sigmoid(x):

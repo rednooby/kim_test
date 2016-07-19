@@ -1,3 +1,7 @@
+'''
+This is a code for testing Neural Network algorithm
+'''
+
 import numpy as np
 from NeuralNetworkLearn import NeuralNetworkLearn
 from ApplyNeuralNetwork import ApplyNeuralNetwork
