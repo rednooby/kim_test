@@ -20,9 +20,6 @@ ngram_list=[]
 for ngram in data:
         ngram_list.append(ngram['ngram'])
 
-trainingdata = np.array(ngram_list)
-trainingdata = np.array(ngram_list, dtype='f')
-
 trainData = np.array(ngram_list, dtype='f')
 trainClass = trainData.transpose()[-1:].transpose()
 trainData = trainData.transpose()[:-1].transpose()
