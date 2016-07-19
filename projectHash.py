@@ -52,34 +52,10 @@ def isExist(hashString):
         result = 1
         return result
 
-    '''
-    con = mysql.connector.connect(host='localhost',
-                                  user='root',
-                                  password='1111',
-                                  database='test')
-    cur = con.cursor()
-    test = "select exists ( select * from s3 where hex = "
-    test += "'"
-    test += str(hashString)
-    test += "'"
-    test += " );"
-    cur.execute(test)
-    data = cur.fetchone()
-    con.close()
-    result = data[0]
-    if result == 0: # 데이터 베이스에 존재하지 않기 대문에 바이러스 토탈로 넘긴다.
-        print "result => {}, ?".format(result)
-        return result
-    else: # 데이터 베이스에 존재하기 바이러스 인걸로 끝낸다.
-        print "result => {}, virus".format(result)
-        return result
-    '''
-
 # func [3] 해쉬값 바이러스 토탈로 넘기기
 def virusTotal(resource, element, filName):
     tempResource = str(resource)
     url = "https://www.virustotal.com/vtapi/v2/file/report"
-    print "resource {}".format(resource)
     parameters = {"resource":tempResource,
                   "apikey":""}
     data = urllib.urlencode(parameters)
@@ -89,15 +65,18 @@ def virusTotal(resource, element, filName):
     time.sleep(15)
     json = str(json)
     result = json.count("true")
-    print result
-    print filName
-    if result == 0: # 바이러스 파일이 아니다 => 그럼 데이터베이스에 적재할 필요없다.
-        print "result => {} ,  not virus".format(result)
-        return ''' END '''
-    if result != 0: # 바이러스 파일이다. => 데이터 베이스에 적재할 경우의 수 존재
-        print "result => {} ,  virus".format(result)
 
-        # 데이터 베이스
+    print " ================== [ 테스트 현황 ] ===================== "
+    print "[File_Name] : ",filName
+
+    if result == 0: # 정상 파일 ---------------------------------------------------------
+        print "[결과] 정상파일 입니다. "
+
+    # ----------------------------------------------------------------------------------------------
+    if result != 0: # 바이러스 파일이다. => 데이터 베이스에 적재할 경우의 수 존재
+        print "[결과] 악성 파일 입니다. "
+
+        # [악성파일] 해시값을 데이터 베이스에 적재한다.
         connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
         db = connection.test  # testDB 접근
         collection = db.testCollection  # testDB의 testCollection 접근
@@ -109,76 +88,63 @@ def virusTotal(resource, element, filName):
         else:   # 데이터 베이스에 존재하기 대문에 적재하지 않는다.
             print "악성코드 파일이 데이터 베이스에 존재합니다."
 
-        '''
-        con = mysql.connector.connect(host='localhost',
-                                      user='root',
-                                      password='1111',
-                                      database='test')
+    # [ 웹으로 날릴 데이터 베이스 ] ==============================================================
+    print "웹으로 데이터 결과를 날린다."
+    response = ""
+    if result == 0:
+        response = "NO"
+    else:
+        response = "YES"
+    print "ans) {}".format(response)
+    con = mysql.connector.connect(host='192.168.0.116',
+                                  user='test',
+                                  password='qwer1234',
+                                  database='jh')
+    cur = con.cursor()
+    test = "insert into s2 values("
+    test += "'"
+    test += tempResource
+    test += "'"
 
-        cur = con.cursor()
-        test = "select exists ( select * from s3 where hex = "
-        test +="'"
-        test += tempResource
-        test += "'"
-        test += " );"
-        cur.execute(test)
-        data = cur.fetchone()
-        result = data[0]
-        if result == 0:  # 데이터 베이스에 존재하지 않기 때문에 db에 적재한다.
-            print "result => {}, not exist".format(result)
-            # 데이터 베이스에 적재하는 쿼리문 입력할 것
-            test = "insert into s3 values("
-            test += "'"
-            test += tempResource
-            test += "'"
-            test += " );"
-            cur.execute(test)
-            con.commit()
-        else:  # 데이터 베이스에 존재하기 대문에 적재하지 않는다.
-            print "result => {}, exist".format(result)
-        con.close()
+    test += ","
 
-        '''
-        result = 0
-        stu = projectMain._Machine()
-        stu.step_0_function(element)
-        result = stu.step_1_function()
-        if result == 0:
-            print "end - 1"
+    test += "'"
+    test += response
+    test += "'"
+
+    test += " );"
+    cur.execute(test)
+    con.commit()
+    con.close()
+    # ==========================================================================================
+
+    result_1 = 0
+
+    stu = projectMain._Machine()
+    stu.fileBinary_Extraction(element)  # ---------------------------------> step 1
+    result_1 = stu.PE_Structure_elfanewString()  # ------------------------> step 2
+
+    if result_1 == 0:
+        print "end - 1"
+    else:
+        stu.PE_Structure_elfanewInt()  # ----------------------------------> step 3
+        result_2 = stu.PE_Structure_sectionText_start_size(element)  # ----> step 4
+        if result_2 == 0:
+            print "end - 2"
         else:
-            stu.step_2_function()
-            result = stu.step_3_function(element)
-            if result == 0:
-                print "end - 2"
-            else:
-                stu.step_4_function()
-                stu.step_5_function()
-                stu.step_6_function()
-                time.sleep(5)
-        #stu.stringWeight()
-        #stu.readAndWrite()
-        stu.dataBase()
-
+            stu.PE_Structure_sectionText_End()  # -------------------------> step 5
+            stu.ngramConstruct()  # ---------------------------------------> step 6
+            stu.ngramSort()  # --------------------------------------------> step 7
+            time.sleep(5) # 5초를 기다려라
+            stu.dataBase(result)  # ---------------------------------------> step 8
 
 # end of [ virusTotal ] function
-
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<  main >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def main():
-    testList = glob.glob("C:\\Users\\Win7\\Desktop\\hell2\\Virus.WinINF.Demo.Zox")
-    print testList
+    testList = glob.glob("C:\\Users\\kimjh\\Desktop\\C\\*")
     for data in testList:
-        '''
-        tempList = str(data).split("\\")
-        element = ""
-        element +="C:\\"
-        for i in range(1, len(tempList)):
-            element += str(tempList[i])
-            if not i == len(tempList)-1:
-                element +="\\"
-        '''
         resource = sha1_for_largefile(str(data)) # 해시값 추출
         result = isExist(resource)
-        #element = tempList[len(testList) - 1]
 
         if result == 0:
             virusTotal(resource, str(data), data)

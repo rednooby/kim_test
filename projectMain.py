@@ -33,15 +33,18 @@ class _Machine:
         self.LstDict = dict()              # type of dictionary
         self.Lastlist = list()             # type of list
         self.TempString = ""               # type of string
-        self.testList = []
-    def step_0_function(self, target):
+        self.testList = []                 # type of list
+        self.controlResult = 0             # type of int 바이러스 인지 아닌지 확인한다.
+        self.totalCount = 0                # type of int ngram 에 갯수가 500개가 되는지 확인한다.
+
+    def fileBinary_Extraction(self, target): # 1
         self.target = target # file_Name
         self.binary_value = open(self.target, 'rb').read()
         self.hex_value = self.binary_value.encode('hex') # type : string
         ''' 00 0E EA 00'''
-        # end of step_02
+        # end of fileBinary_Extraction
 
-    def step_1_function(self):
+    def PE_Structure_elfanewString(self): # 2
         s = ""  # string
         num = 0
 
@@ -61,9 +64,9 @@ class _Machine:
             return 0
         else:
             return 1
-        # end of step_1
+        # end of PE_Structure_elfanewString
 
-    def step_2_function(self):
+    def PE_Structure_elfanewInt(self): # 3
         # NT _header first
         z = 3
         for index in range(0, len(self.e_lfanew_string)):
@@ -76,11 +79,9 @@ class _Machine:
             else:
                 self.e_lfanew_int += (int(self.e_lfanew_string[index]) * (16 ** z))
                 z -= 1
-        #print "self.e_lfanew_int => {}".format(self.e_lfanew_int)
-        #print "self.e_lfanew_int => hex_{}".format(hex(self.e_lfanew_int))
-        # end of step_2
+        # end of PE_Structure_elfanewInt
 
-    def step_3_function(self, s):
+    def PE_Structure_sectionText_start_size(self, s): # 4
         test = s
         try:
             pe = pefile.PE(test)
@@ -159,12 +160,13 @@ class _Machine:
                     #print "stu.textSize -> {}".format(self.textSize)
                     #print "stu.textSize -> hex_{}".format(hex(self.textSize))
             return 1
+        # end of PE_Structure_sectionText_start_size
 
-    def step_4_function(self):
+    def PE_Structure_sectionText_End(self): # 5
         self.textEnd = self.textStart + self.textSize
+        # end of PE_Structure_sectionText_End
 
-    def step_5_function(self):
-        print self.textStart , self.textEnd
+    def ngramConstruct(self): # 6
         for key in range(self.textStart*2, (self.textEnd*2)-7, 2):
             tempString = ""
             tempString += self.hex_value[key+0:key+2]
@@ -175,10 +177,9 @@ class _Machine:
             tempString += " "
             tempString += self.hex_value[key+6:key+8]
             self.hex_list.append(tempString)
+        # end of ngramConstruct
 
-
-
-    def step_6_function(self):
+    def ngramSort(self): # 7
         ngram_dict = dict() # dictionary[key:value]
         for i in range(len(self.hex_list)-8):
             ngram = str(self.hex_list[i])
@@ -199,83 +200,60 @@ class _Machine:
         d1 = sorted(dictList, reverse=True)
         d2 = d1[0:500]
         d3 = [l[1] for l in d2]
-        print d3
+
         for ngram in d3:
             self.testList.append((int(ngram[0:2], 16)))
             self.testList.append((int(ngram[3:5], 16)))
             self.testList.append((int(ngram[6:8], 16)))
             self.testList.append((int(ngram[9:11], 16)))
+            self.totalCount += 1
+        # end of ngramSort
 
+    def dataBase(self, result): # 8
+        self.controlResult = result
+        if not self.totalCount == 500:
+            print "ngram 의 갯수가 500 개가 되지 않습니다."
+            return ''' 종료 '''
+        else: #--> self.totalCount == 500
+            if self.controlResult == 0: # 정상파일 =======================================================
+                print "정상파일 입니다.[DB]"
+                connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
+                db = connection.test  # testDB 접근
+                collection = db.testCollection  # testDB의 testCollection 접근
+                data = collection.find_one({"ngram": self.testList})
 
-    def dataBase(self):
-        print self.TempString
-        connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
-        db = connection.test  # testDB 접근
-        collection = db.employees  # testDB의 testCollection 접근
-        data = collection.find_one({"ngram": self.testList})
+                if data == None:
+                    collection.insert({"ngram": self.testList})
+                else:
+                    print "있는 데이터 입니다."
 
-        if data == None:
-            collection.insert({"ngram": self.testList})
-        else:
-            print data
-            print "있는 데이터 입니다."
-        print "this is test"
+            else: # 악성성 파일입니다. ====================================================================
+                print "비정상파일 입니다.[DB]"
+                connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
+                db = connection.test  # testDB 접근
+                collection = db.employees  # testDB의 testCollection 접근
+                data = collection.find_one({"ngram": self.testList})
 
-        # database ----------------------------------------------------------------------
-        '''  MySQL Databaseb
-        con = mysql.connector.connect(host='localhost',
-                                      user='root',
-                                      password='1111',
-                                      database='test')
+                if data == None:
+                    collection.insert({"ngram": self.testList})
+                else:
+                    print data
+                    print "있는 데이터 입니다."
 
-        # 데이터베이스에 데이터가 있는지 확인을 먼저
-        cur = con.cursor()
-        test = "select exists ( select * from s1 where a = "
-        test += "'"
-        test += self.TempString
-        test += "'"
-        test += " );"
-        cur.execute(test)
-        data = cur.fetchone()
-        result = data[0]
-
-        if result == 0:
-            print "result => {}, ?".format(result)
-            insertstmt = ""
-            insertstmt += "insert into s1 (a) values ("
-            insertstmt += "'"
-            insertstmt += self.TempString
-            insertstmt += "'"
-            insertstmt += ");"
-            cur.execute(insertstmt)
-            con.commit()
-        else:
-            print "result => {}, 데이터가 이미 존재한다.".format(result)
-
-        con.close()
-         '''
+        # end of dataBase
 
 def main():
+
     stu = _Machine()
     t = "C:\\Users\\Win7\\Desktop\\test\\*"
-
-    start_time = time.time()
-
-    stu.step_0_function(t)
-    stu.step_1_function()
-    stu.step_2_function()
-    stu.step_3_function(t)
-    stu.step_4_function()
-    stu.step_5_function()
-    stu.step_6_function()
-    print stu.testList
-    # stu.stringWeight()
-    # stu.readAndWrite()
-    # stu.dataBase()
-    print stu.TempString
-    end_time = time.time()
-
-    print end_time - start_time
+    stu.fileBinary_Extraction(t) # ------------------> step 1
+    stu.PE_Structure_elfanewString() # --------------> step 2
+    stu.PE_Structure_elfanewInt() # -----------------> step 3
+    stu.PE_Structure_sectionText_start_size(t) # ----> step 4
+    stu.PE_Structure_sectionText_End() # ------------> step 5
+    stu.ngramConstruct() # --------------------------> step 6
+    stu.ngramSort() # -------------------------------> step 7
+    stu.dataBase() # --------------------------------> step 8
 
 if __name__ == "__main__":
     main()
