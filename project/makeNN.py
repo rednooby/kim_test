@@ -92,6 +92,7 @@ for i in range(weight_len):
 insert weight into DB
 '''
 collection = db.weight  # testDB weight collection
+collection.remove({}) # initialization
 for i in range(len(weight_list)):
 	collection.insert({'bestNN_weight':weight_list[i]})
 print 'WEIGHT INSERTED'
