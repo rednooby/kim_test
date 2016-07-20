@@ -309,11 +309,11 @@ for file in fileToDetect_list:
 			detect_list.append(data)
 			filename_list.append(t)
 	except:
-		print 'file error'
+		print 'file open error'
 
 print 'Done.'
 print ''
-print 'List of files to detect'
+print 'List of files to detect by NN'
 for filename in filename_list:
 	print filename
 print ''
