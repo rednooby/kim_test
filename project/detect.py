@@ -261,6 +261,13 @@ def get_file_list(path):
 	return file_list
 
 
+def make_1d_list(newlist,filelist):
+	for file in filelist:
+		if type(file) == type([]):
+			make_1d_list(newlist,file)
+		else:
+			newlist.append(file)
+
 
 '''
 open input_file
@@ -279,13 +286,14 @@ NGRAM EXTRACTION CODE
 '''
 
 f_list = get_file_list(sys.argv[1])
-#print f_list
+fileToDetect_list=[]
+make_1d_list(fileToDetect_list,f_list)
 
 detect_list=[]
 filename_list=[]
 
 print 'Extracting ngram...'
-for file in f_list:
+for file in fileToDetect_list:
 	stu = _Machine()
 	t=file
 	try:
