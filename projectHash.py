@@ -54,7 +54,7 @@ def virusTotal(resource, element, filName):
     tempResource = str(resource)
     url = "https://www.virustotal.com/vtapi/v2/file/report"
     parameters = {"resource":tempResource,
-                  "apikey":"d91aec94b6d5494ed7ab5a7ac79ca3dedc0051ada686812393459b21dc630704"}
+                  "apikey":""}
     data = urllib.urlencode(parameters)
     req = urllib2.Request(url, data)
     response = urllib2.urlopen(req)
