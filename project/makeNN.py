@@ -38,13 +38,17 @@ arrange data format
 '''
 trainData = np.array(ngram_list, dtype='f')
 trainClass = trainData.transpose()[-1:].transpose()
+normal_count=0
+for i in range(len(trainClass)):
+	if trainClass[i][0] == 0.0:
+		normal_count += 1
 trainData = trainData.transpose()[:-1].transpose()
 # match the size of array
 trainClass = np.insert(trainClass,0,0.0,axis=1)
 
-print 'Training Data Amount'
-print len(trainData)
-
+print 'Amount of Training Data: %d' % len(trainData)
+print '(%d Normal Files)' % normal_count
+print ''
 
 '''
 set arguments for NN
