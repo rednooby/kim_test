@@ -23,9 +23,9 @@ SUPPOSE ngram data in DB is as follows:
 '''
 get ngram from DB
 '''
-connection = pymongo.MongoClient("IP ADDRESS", 27017)  # Mongodb_TargetIp, portNumber
-db = connection.DB_NAME  # testDB
-collection = db.COLLECTION_NAME  # testDB testCollection
+connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
+db = connection.test  # testDB
+collection = db.ngramData  # testDB testCollection
 data = collection.find()
 
 ngram_list=[]
