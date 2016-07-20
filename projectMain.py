@@ -217,9 +217,9 @@ class _Machine:
         else: #--> self.totalCount == 500
             if self.controlResult == 0: # 정상파일 =======================================================
                 print "정상파일 입니다.[DB]"
-                connection = pymongo.MongoClient("192.168.8.142", 27017)  # Mongodb_TargetIp, portNumber
+                connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
                 db = connection.test  # testDB 접근
-                collection = db.testCollection  # testDB의 testCollection 접근
+                collection = db.ngramData  # testDB의 testCollection 접근
                 self.testList.append(0) # normal mark : 0
                 data = collection.find_one({"ngram": self.testList})
                 if data == None:
@@ -229,9 +229,9 @@ class _Machine:
 
             else: # 악성성 파일입니다. ====================================================================
                 print "비정상파일 입니다.[DB]"
-                connection = pymongo.MongoClient("192.168.8.142", 27017)  # Mongodb_TargetIp, portNumber
+                connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
                 db = connection.test  # testDB 접근
-                collection = db.employees  # testDB의 testCollection 접근
+                collection = db.ngramData  # testDB의 testCollection 접근
                 self.testList.append(1)  # innormal mark : 1
                 data = collection.find_one({"ngram": self.testList})
                 if data == None:
@@ -245,7 +245,6 @@ class _Machine:
 def main():
     stu = _Machine()
     t = "test.exe"
-
     stu.fileBinary_Extraction(t) # ------------------> step 1
     stu.PE_Structure_elfanewString() # --------------> step 2
     stu.PE_Structure_elfanewInt() # -----------------> step 3

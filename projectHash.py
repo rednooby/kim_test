@@ -1,14 +1,14 @@
 # -*- coding: utf -8 -*-
 
 # ----------- [import section] ---------------
-import simplejson
+
 import urllib
 import urllib2
 import hashlib
 import glob
 import os
 import time
-import mysql.connector
+import mysql
 import projectMain
 import json
 import pymongo
@@ -35,9 +35,9 @@ def sha1_for_largefile(filepath, blocksize=8192):
 # hashString value 는 임의의 파일에 hash 값이 인자로 들어온다.
 def isExist(hashString):
     result = 0
-    connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
+    connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
     db = connection.test  # testDB 접근
-    collection = db.testCollection # testDB의 testCollection 접근
+    collection = db.hashData # testDB의 testCollection 접근
     data = collection.find_one({"hexvalue": hashString})
 
     if data == None: # 데이터 베이스에 존재하지 않기 대문에 바이러스 토탈로 넘긴다.
@@ -54,7 +54,7 @@ def virusTotal(resource, element, filName):
     tempResource = str(resource)
     url = "https://www.virustotal.com/vtapi/v2/file/report"
     parameters = {"resource":tempResource,
-                  "apikey":""}
+                  "apikey":"d91aec94b6d5494ed7ab5a7ac79ca3dedc0051ada686812393459b21dc630704"}
     data = urllib.urlencode(parameters)
     req = urllib2.Request(url, data)
     response = urllib2.urlopen(req)
@@ -74,9 +74,9 @@ def virusTotal(resource, element, filName):
         print "[결과] 악성 파일 입니다. "
 
         # [악성파일] 해시값을 데이터 베이스에 적재한다.
-        connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
+        connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
         db = connection.test  # testDB 접근
-        collection = db.testCollection  # testDB의 testCollection 접근
+        collection = db.hashData  # testDB의 testCollection 접근
         data = collection.find_one({"hexvalue": tempResource})
 
         if data == None:  # 데이터 베이스에 존재하지 않기 때문에 db에 적재한다.
@@ -84,7 +84,7 @@ def virusTotal(resource, element, filName):
 
         else:   # 데이터 베이스에 존재하기 대문에 적재하지 않는다.
             print "악성코드 파일이 데이터 베이스에 존재합니다."
-
+    '''
     # [ 웹으로 날릴 데이터 베이스 ] ==============================================================
     print "웹으로 데이터 결과를 날린다."
     response = ""
@@ -116,7 +116,7 @@ def virusTotal(resource, element, filName):
     con.commit()
     con.close()
     # ==========================================================================================
-
+    '''
     result_1 = 0
 
     stu = projectMain._Machine()
@@ -134,13 +134,13 @@ def virusTotal(resource, element, filName):
             stu.PE_Structure_sectionText_End()  # -------------------------> step 5
             stu.ngramConstruct()  # ---------------------------------------> step 6
             stu.ngramSort()  # --------------------------------------------> step 7
-            time.sleep(5) # 5초를 기다려라
+            time.sleep(10) # 5초를 기다려라
             stu.dataBase(result)  # ---------------------------------------> step 8
 
 # end of [ virusTotal ] function
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<  main >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 def main():
-    testList = glob.glob("C:\\Users\\kimjh\\Desktop\\C\\*")
+    testList = glob.glob("C:\\Users\\kosta\\Desktop\\virus\\*")
     for data in testList:
         resource = sha1_for_largefile(str(data)) # 해시값 추출
         result = isExist(resource)
