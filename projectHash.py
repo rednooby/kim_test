@@ -1,4 +1,5 @@
 # -*- coding: utf -8 -*-
+
 # ----------- [import section] ---------------
 import simplejson
 import urllib
@@ -7,14 +8,10 @@ import hashlib
 import glob
 import os
 import time
-import sys
 import mysql.connector
 import projectMain
-import pefile
 import json
 import pymongo
-from pprint import pprint
-from bson.objectid import ObjectId
 # --------------------------------------------
 
 # func [1] 해쉬값 추출
@@ -57,7 +54,7 @@ def virusTotal(resource, element, filName):
     tempResource = str(resource)
     url = "https://www.virustotal.com/vtapi/v2/file/report"
     parameters = {"resource":tempResource,
-                  "apikey":""}
+                  "apikey":"a7677e9d9aab695aa11a53ac6d64caa11c4573a47d7bfc4003735a54fef0bca4"}
     data = urllib.urlencode(parameters)
     req = urllib2.Request(url, data)
     response = urllib2.urlopen(req)
@@ -93,9 +90,11 @@ def virusTotal(resource, element, filName):
     response = ""
     if result == 0:
         response = "NO"
+        print "정상 파일로 데이터를 넘기겠습니다."
     else:
         response = "YES"
-    print "ans) {}".format(response)
+        print "악성 파일로 데이터를 넘기겠습니다."
+
     con = mysql.connector.connect(host='192.168.0.116',
                                   user='test',
                                   password='qwer1234',
@@ -103,13 +102,13 @@ def virusTotal(resource, element, filName):
     cur = con.cursor()
     test = "insert into s2 values("
     test += "'"
-    test += tempResource
+    test += tempResource # Hash value
     test += "'"
 
     test += ","
 
     test += "'"
-    test += response
+    test += response # "yes" or "no"
     test += "'"
 
     test += " );"

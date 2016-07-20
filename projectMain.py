@@ -217,11 +217,11 @@ class _Machine:
         else: #--> self.totalCount == 500
             if self.controlResult == 0: # 정상파일 =======================================================
                 print "정상파일 입니다.[DB]"
-                connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
+                connection = pymongo.MongoClient("192.168.8.142", 27017)  # Mongodb_TargetIp, portNumber
                 db = connection.test  # testDB 접근
                 collection = db.testCollection  # testDB의 testCollection 접근
+                self.testList.append(0) # normal mark : 0
                 data = collection.find_one({"ngram": self.testList})
-
                 if data == None:
                     collection.insert({"ngram": self.testList})
                 else:
@@ -229,11 +229,11 @@ class _Machine:
 
             else: # 악성성 파일입니다. ====================================================================
                 print "비정상파일 입니다.[DB]"
-                connection = pymongo.MongoClient("192.168.8.141", 27017)  # Mongodb_TargetIp, portNumber
+                connection = pymongo.MongoClient("192.168.8.142", 27017)  # Mongodb_TargetIp, portNumber
                 db = connection.test  # testDB 접근
                 collection = db.employees  # testDB의 testCollection 접근
+                self.testList.append(1)  # innormal mark : 1
                 data = collection.find_one({"ngram": self.testList})
-
                 if data == None:
                     collection.insert({"ngram": self.testList})
                 else:
@@ -243,9 +243,9 @@ class _Machine:
         # end of dataBase
 
 def main():
-
     stu = _Machine()
-    t = "C:\\Users\\Win7\\Desktop\\test\\*"
+    t = "test.exe"
+
     stu.fileBinary_Extraction(t) # ------------------> step 1
     stu.PE_Structure_elfanewString() # --------------> step 2
     stu.PE_Structure_elfanewInt() # -----------------> step 3
@@ -253,7 +253,8 @@ def main():
     stu.PE_Structure_sectionText_End() # ------------> step 5
     stu.ngramConstruct() # --------------------------> step 6
     stu.ngramSort() # -------------------------------> step 7
-    stu.dataBase() # --------------------------------> step 8
-
+    stu.dataBase(0) # -------------------------------> step 8
+    '''step 8 에서 정상 파일이면 : 0
+    악성 파일이면 : 1'''
 if __name__ == "__main__":
     main()
