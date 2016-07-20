@@ -3,9 +3,12 @@ This is codes for LEARNING
 (Make a Neural Network with training data)
 (Insert WEIGH into DB)
 '''
+import sys
+sys.path.append('nnet')
 
 import numpy as np
-from NeuralNetworkLearn import nnet.NeuralNetworkLearn
+#from NeuralNetworkLearn import nnet.NeuralNetworkLearn
+from NeuralNetworkLearn import NeuralNetworkLearn
 import pymongo
 '''
 !!!!!!!!!!!!!!!!!!!!!!!
@@ -88,7 +91,7 @@ for i in range(weight_len):
 '''
 insert weight into DB
 '''
-collection = db.weight(DB_NAME)  # testDB testCollection
+collection = db.weight  # testDB weight collection
 for i in range(len(weight_list)):
 	collection.insert({'bestNN_weight':weight_list[i]})
 print 'WEIGHT INSERTED'
