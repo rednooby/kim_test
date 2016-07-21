@@ -200,6 +200,7 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 		print maxRound
 		print ''
 		'''
+		print round_count
 
 	print 'Round count while learning : %d' % round_count
 	print ''

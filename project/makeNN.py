@@ -37,7 +37,7 @@ for ngram in data:
 MODIFY THE AMOUNT OF TRAINING DATA
 #####################################################
 '''
-'''
+
 amount_malware = 300
 mal=[]
 nor=[]
@@ -47,7 +47,7 @@ for ngram in ngram_list:
 	elif ngram[-1] == 0:
 		nor.append(ngram)
 ngram_list = mal[0:amount_malware] + nor
-'''
+
 '''
 arrange data format
 '''
@@ -70,10 +70,10 @@ set arguments for NN
 '''
 Layers=[2000,1300,2]
 #errFunChgLmt = 1e-6
-errFunChgLmt = 0
+errFunChgLmt = -1 # never stop
 #weightChgLmt = 1e-4
 weightChgLmt = 0
-maxRound = 1000
+maxRound = 300
 learnRate = 1
 
 '''
