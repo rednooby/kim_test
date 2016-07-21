@@ -315,13 +315,6 @@ if len(sys.argv) is not 2:
         exit(1)
 
 
-'''
-==========================================
-NGRAM EXTRACTION CODE
-->dataToCheck
-==========================================
-'''
-
 f_list = get_file_list(sys.argv[1])
 fileToDetect_list=[]
 make_1d_list(fileToDetect_list,f_list)
@@ -332,13 +325,15 @@ filename_list=[]
 '''
 # Detect malware by Hash DB
 '''
+print 'Detection by hash value in DB'
 for file in fileToDetect_list:
 	hash_value = sha1_for_largefile(str(file))
 	result = isExist(hash_value)
 	if result == 1:
 		print file
 		del file
-
+print 'Done.'
+print ''
 
 '''
 NGRAM EXTRACTION
@@ -346,25 +341,25 @@ NGRAM EXTRACTION
 print 'Extracting ngram...'
 for file in fileToDetect_list:
 	stu = _Machine()
-	t=file
 	try:
-		stu.fileBinary_Extraction(t)	
+		stu.fileBinary_Extraction(file)	
 		stu.PE_Structure_elfanewString()
 		stu.PE_Structure_elfanewInt()
-		stu.PE_Structure_sectionText_start_size(t)
+		stu.PE_Structure_sectionText_start_size(file)
 		stu.PE_Structure_sectionText_End()
 		stu.ngramConstruct()
 		stu.ngramSort()
 		data = stu.getNgram()
 		if len(data) == 2000:
 			detect_list.append(data)
-			filename_list.append(t)
+			filename_list.append(file)
+			print "  %s done." % file
 	except:
-		print 'file open error'
+		print '  %s file open error' % file
 
-print 'Done.'
+print 'Extraction done.'
 print ''
-print 'List of files to detect by NN'
+print 'List of files to detect by Neural Network'
 for filename in filename_list:
 	print filename
 print ''

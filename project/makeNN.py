@@ -32,7 +32,22 @@ ngram_list=[]
 for ngram in data:
         ngram_list.append(ngram['ngram'])
 
-
+'''
+#####################################################
+MODIFY THE AMOUNT OF TRAINING DATA
+#####################################################
+'''
+'''
+amount_malware = 300
+mal=[]
+nor=[]
+for ngram in ngram_list:
+	if ngram[-1] == 1:
+		mal.append(ngram)
+	elif ngram[-1] == 0:
+		nor.append(ngram)
+ngram_list = mal[0:amount_malware] + nor
+'''
 '''
 arrange data format
 '''
@@ -54,10 +69,12 @@ print ''
 set arguments for NN
 '''
 Layers=[2000,1300,2]
-errFunChgLmt = 1e-6;
-weightChgLmt = 1e-4;
-maxRound = 1000;
-learnRate = 1;
+#errFunChgLmt = 1e-6
+errFunChgLmt = 0
+#weightChgLmt = 1e-4
+weightChgLmt = 0
+maxRound = 1000
+learnRate = 1
 
 '''
 Learning
@@ -70,7 +87,7 @@ print 'best training error function'
 print bestNetwork.bestTrainErrFun
 print 'best training error function rate'
 print bestNetwork.bestTrainErrFunRate
-
+print ''
 
 
 '''

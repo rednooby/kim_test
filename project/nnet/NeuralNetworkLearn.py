@@ -190,5 +190,23 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 			bestNetwork = network
 			bestNetwork.bestTrainErrFun = min_trainErrFun
 			bestNetwork.bestTrainErrFunRate = min_trainErrFunRate
+		#while errFunChg > errFunChgLmt and weightChg > weightChgLmt and round_count < maxRound:
+		'''
+		print errFunChg
+		print float(errFunChgLmt)
+		print weightChg
+		print float(weightChgLmt)
+		print round_count
+		print maxRound
+		print ''
+		'''
+
+	print 'Round count while learning : %d' % round_count
+	print ''
+	print 'Arguments check'
+	print '  errFunChg'
+	print errFunChg
+	print '  weightChg'
+	print weightChg
 
 	return bestNetwork
