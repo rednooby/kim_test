@@ -13,6 +13,7 @@ import glob
 import pefile
 import os
 import hashlib
+import matplotlib.pyplot as plt
 
 alphabet = 'abcdef'
 
@@ -419,3 +420,18 @@ for i in detection_result:
 
 print 'Detection rate: %d/%d ' % (ct,len(filename_list))
 print '%f' % (ct/float(len(filename_list)))
+
+
+
+'''
+graph
+'''
+labels = 'malware', 'normal'
+sizes = [ct, len(filename_list)-ct]
+colors = ['yellowgreen', 'lightcoral']
+explode = (0,0.1)
+plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+        autopct='%1.1f%%', shadow=True, startangle=90)
+# Set aspect ratio to be equal so that pie is drawn as a circle.
+plt.axis('equal')
+plt.show()
