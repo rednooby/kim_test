@@ -325,15 +325,16 @@ filename_list=[]
 '''
 # Detect malware by Hash DB
 '''
+temp_list = []
 print 'Detection by hash value in DB'
 for file in fileToDetect_list:
 	hash_value = sha1_for_largefile(str(file))
 	result = isExist(hash_value)
-	if result == 1:
-		print file
-		del file
+	if result == 0:
+		temp_list.append(file)
 print 'Done.'
 print ''
+fileToDetect_list = temp_list
 
 '''
 NGRAM EXTRACTION
