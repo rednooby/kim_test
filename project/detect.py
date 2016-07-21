@@ -411,11 +411,11 @@ if detection_result is [0 1] -> malware
 else -> detection error
 '''
 
-'''
+
 ct=0
 for i in detection_result:
-	if i == [0.0, 0.0]:
+	if i.tolist() == [0.0, 1.0]:
 		ct += 1
 
-print ct
-'''
+print 'Detection rate: %d/%d ' % (ct,len(filename_list))
+print '%f' % (ct/float(len(filename_list)))
