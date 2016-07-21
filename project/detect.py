@@ -12,6 +12,7 @@ import pymongo
 import glob
 import pefile
 import os
+import hashlib
 
 alphabet = 'abcdef'
 
@@ -268,6 +269,42 @@ def make_1d_list(newlist,filelist):
 		else:
 			newlist.append(file)
 
+# func [1] 해쉬값 추출
+def sha1_for_largefile(filepath, blocksize=8192):
+    sha_1 = hashlib.sha1()
+
+    try:
+        f = open(filepath, "rb")
+    except IOError as e:
+        print("file open error", e)
+        return
+    while True:
+        buf = f.read(blocksize)
+        if not buf:
+            break
+        sha_1.update(buf)
+    return sha_1.hexdigest() # 해시값을 리턴한다.
+# end of [ sha1_for_largefile ] function
+
+# func [2] 해쉬값 이 데이터 베이스에 있는지 없는지 확인할 것
+# hashString value 는 임의의 파일에 hash 값이 인자로 들어온다.
+def isExist(hashString):
+    result = 0
+    connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
+    db = connection.test  # testDB 접근
+    collection = db.hashData # testDB의 testCollection 접근
+    data = collection.find_one({"hexvalue": hashString})
+
+    if data == None: # 데이터 베이스에 존재하지 않기 대문에 바이러스 토탈로 넘긴다.
+        result = 0
+        return result
+
+    else:  # 데이터 베이스에 존재하기 바이러스 인걸로 끝낸다.
+        print "악성코드 파일 입니다."
+        result = 1
+        return result
+
+
 
 '''
 open input_file
@@ -292,6 +329,20 @@ make_1d_list(fileToDetect_list,f_list)
 detect_list=[]
 filename_list=[]
 
+'''
+# Detect malware by Hash DB
+'''
+for file in fileToDetect_list:
+	hash_value = sha1_for_largefile(str(file))
+	result = isExist(hash_value)
+	if result == 1:
+		print file
+		del file
+
+
+'''
+NGRAM EXTRACTION
+'''
 print 'Extracting ngram...'
 for file in fileToDetect_list:
 	stu = _Machine()
@@ -356,6 +407,8 @@ detection
 detection_result = ApplyNeuralNetwork(bestNetwork, dataToCheck)
 print 'Detection result'
 print detection_result
+
+########################################################################
 '''
 if detection_result is [0 0] -> normal
 if detection_result is [0 1] -> malware
