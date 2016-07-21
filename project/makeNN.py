@@ -38,7 +38,7 @@ MODIFY THE AMOUNT OF TRAINING DATA
 #####################################################
 '''
 
-amount_malware = 300
+amount_malware = 1000
 mal=[]
 nor=[]
 for ngram in ngram_list:
@@ -70,7 +70,7 @@ set arguments for NN
 '''
 Layers=[2000,1300,2]
 #errFunChgLmt = 1e-6
-errFunChgLmt = -1 # never stop
+errFunChgLmt = -1 # never stop(< 0)
 #weightChgLmt = 1e-4
 weightChgLmt = 0
 maxRound = 300
