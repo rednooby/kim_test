@@ -300,7 +300,7 @@ def isExist(hashString):
         return result
 
     else:  # 데이터 베이스에 존재하기 바이러스 인걸로 끝낸다.
-        print "악성코드 파일 입니다."
+        print "Malware!!"
         result = 1
         return result
 
@@ -408,4 +408,13 @@ print detection_result
 if detection_result is [0 0] -> normal
 if detection_result is [0 1] -> malware
 else -> detection error
+'''
+
+'''
+ct=0
+for i in detection_result:
+	if i == [0.0, 0.0]:
+		ct += 1
+
+print ct
 '''
