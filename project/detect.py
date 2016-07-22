@@ -371,11 +371,16 @@ k2 = "c2f5edb9c68df4a96b67276a4c66a522ae316f33781ff026a49381a6ba2e77f2"
 k3 = "cda13808c3ce0dfc3ee40fff23f0b3acfbbc648442370a777d6125504455ce6d"
 k4 = "5b8d384d78cdfb06187891ba71ef718634bc97e3c720da968beadf5ef654165c"
 k5 = "8c70bb7653fcbade33a6364e991d1fac614128810c7cbc51cec6aee35d8b6ed9"
-key_list = [k1,k2,k3,k4,k5]
-VT_result = dict()
+k6 = "a7677e9d9aab695aa11a53ac6d64caa11c4573a47d7bfc4003735a54fef0bca4"
+k7 = "559615cef6ec81a70207208195b6f682dfc9ec7bb9e32609b5640b9606c1c36f"
+k8 = "d91aec94b6d5494ed7ab5a7ac79ca3dedc0051ada686812393459b21dc630704"
+k9 = "2d5d0f6b8a9d5eabb38f084d4c3a6d0a74f27ea592e026285dad50298bc34b29"
+k10 = "7e6f911e8e3c4601ec9a27df6f3ab4e9aaf1f66380c44ff83610ecd688ddfa19"
+key_list = [k1,k2,k3,k4,k5,k6,k7,k8,k9,k10]
+VT_result = dict()	# {FileName : (result, VT_count, File Name)}
 i=0
 while(i<len(fileToDetect_list)):
-	key = key_list[i%5] 
+	key = key_list[i%len(key_list)] 
 	VT_result[fileToDetect_list[i]] = virusTotal(hash_list[i], str(fileToDetect_list[i]), fileToDetect_list[i], key)
 	# (result, VT_count, File Name)
 	time.sleep(15/float(len(key_list)))
