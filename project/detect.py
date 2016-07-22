@@ -322,7 +322,7 @@ def virusTotal(resource, element, fileName, APIkey):
     result = json.count("true")
 
     if result < 10: # 정상 파일 ---------------------------------------------------------
-        print "  %s : normal (%d engines)" % (fileName, result)
+        print "  %s : not malware (%d engines)" % (fileName, result)
         return (0, result, tempResource)
     # ------------------------------------[----------------------------------------------------------
     else: # 바이러스 파일이다. => 데이터 베이스에 적재할 경우의 수 존재
@@ -455,7 +455,12 @@ detection
 '''
 detection_result = ApplyNeuralNetwork(bestNetwork, dataToCheck)
 print 'Detection result'
-print detection_result
+for i in range(len(filename_list)):
+	tempstr = str(detection_result[i].tolist())
+	if tempstr == '[0.0, 1.0]':
+		print "%s  : MALWARE" % filename_list[i]
+	else:
+		print "%s  : NOT MALWARE" % filename_list[i]
 
 ########################################################################
 
