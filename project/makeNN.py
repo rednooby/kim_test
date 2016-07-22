@@ -38,7 +38,8 @@ MODIFY THE AMOUNT OF TRAINING DATA
 #####################################################
 '''
 
-amount_malware = 400
+amount_malware = 100
+amount_normal = 100
 mal=[]
 nor=[]
 for ngram in ngram_list:
@@ -46,7 +47,7 @@ for ngram in ngram_list:
 		mal.append(ngram)
 	elif ngram[-1] == 0:
 		nor.append(ngram)
-ngram_list = mal[0:amount_malware] + nor
+ngram_list = mal[0:amount_malware] + nor[0:amount_normal]
 
 '''
 arrange data format
@@ -98,14 +99,16 @@ weight_len = len(Layers)-1
 weight_list = []
 
 for i in range(weight_len):
-	# split some weight into small size it is too large (DB INSERT ERROR)
+	# split some weight into small size cuz it's too large (DB INSERT ERROR)
 	# merge later(in Detection code)
 	if len(bestNetwork.w[i]) > 400:
-		div_len_by=int(len(bestNetwork.w[i])/400)
-		div_len=len(bestNetwork.w[i])/div_len_by
-		weight_list.append(bestNetwork.w[i][0:div_len].tolist())
-		weight_list.append(bestNetwork.w[i][div_len:div_len*2].tolist())
-		weight_list.append(bestNetwork.w[i][div_len*2:].tolist())
+		div_len=400
+		start=0
+		end=div_len
+		while bestNetwork.w[i][start:end].tolist() != []:
+			weight_list.append(bestNetwork.w[i][start:end].tolist())
+			start = end
+			end += div_len
 	else:
 		weight_list.append(bestNetwork.w[i].tolist())
 

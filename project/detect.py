@@ -14,6 +14,9 @@ import pefile
 import os
 import hashlib
 import matplotlib.pyplot as plt
+import urllib
+import urllib2
+import time
 
 alphabet = 'abcdef'
 
@@ -305,6 +308,25 @@ def isExist(hashString):
         result = 1
         return result
 
+def virusTotal(resource, element, fileName, APIkey):
+    tempResource = str(resource)
+    url = "https://www.virustotal.com/vtapi/v2/file/report"
+    parameters = {"resource":tempResource,
+                  "apikey":APIkey}
+    data = urllib.urlencode(parameters)
+    req = urllib2.Request(url, data)
+    response = urllib2.urlopen(req)
+    json = response.read()
+    json = str(json)
+    result = json.count("true")
+
+    if result < 10: # 정상 파일 ---------------------------------------------------------
+        print "  %s : normal (%d engines)" % (fileName, result)
+        return (0, result)
+    # ------------------------------------[----------------------------------------------------------
+    else: # 바이러스 파일이다. => 데이터 베이스에 적재할 경우의 수 존재
+        print "  %s : malware (%d engines)" % (fileName, result)
+        return (1 ,result)
 
 
 '''
@@ -320,26 +342,47 @@ f_list = get_file_list(sys.argv[1])
 fileToDetect_list=[]
 make_1d_list(fileToDetect_list,f_list)
 
-detect_list=[]
-filename_list=[]
 
 '''
 # Detect malware by Hash DB
 '''
 temp_list = []
+hash_list = []
 print 'Detection by hash value in DB'
 for file in fileToDetect_list:
 	hash_value = sha1_for_largefile(str(file))
 	result = isExist(hash_value)
 	if result == 0:
 		temp_list.append(file)
+		hash_list.append(hash_value)
 print 'Done.'
 print ''
 fileToDetect_list = temp_list
 
+
+'''
+## Detection by Virus Total API
+'''
+
+'''
+print 'Virus Total API Detection Result'
+VT_result = dict()
+for i in range(len(fileToDetect_list)):
+	key = "408377a089c6dd9860e6006750c9e832ca8a73d9bb4825e47bbf8ea1ca5c1a5f"
+	(ret, vt_count) = virusTotal(hash_value[i], str(fileToDetect_list[i]), fileToDetect_list[i], key)
+	if ret == 1:
+		VT_result[fileToDetect_list[i]] = (1, vt_count)
+	else:
+		VT_result[fileToDetect_list[i]] = (0, vt_count)
+	time.sleep(15)
+'''
+
+
 '''
 NGRAM EXTRACTION
 '''
+detect_list=[]
+filename_list=[]
 print 'Extracting ngram...'
 for file in fileToDetect_list:
 	stu = _Machine()
@@ -386,10 +429,14 @@ for d in data:
 	tl.append(d['bestNN_weight'])
 
 tl_len = len(tl)
+
+# merge splitted weight
 for i in range(tl_len-1,0,-1):
+	print i
 	if len(tl[i][0]) == len(tl[i-1][0]):
 		tl[i-1] = tl[i-1]+tl[i]
 		del tl[i]
+
 
 for i in range(len(tl)):
 	tl[i] = np.array(tl[i])
@@ -406,32 +453,56 @@ print 'Detection result'
 print detection_result
 
 ########################################################################
-'''
-if detection_result is [0 0] -> normal
-if detection_result is [0 1] -> malware
-else -> detection error
-'''
 
-
+'''
+result counting
+'''
+NN_result = dict()
 ct=0
-for i in detection_result:
-	if i.tolist() == [0.0, 1.0]:
+#for i in detection_result:
+for i in range(len(detection_result)):
+	#if i.tolist() == [0.0, 1.0]:
+	if detection_result[i].tolist() == [0.0, 1.0]:
 		ct += 1
+		NN_result[filename_list[i]] = 1
+	else:
+		NN_result[filename_list[i]] = 0
 
 print 'Detection rate: %d/%d ' % (ct,len(filename_list))
 print '%f' % (ct/float(len(filename_list)))
 
-
-
+print NN_result
 '''
 graph
 '''
-labels = 'malware', 'normal'
-sizes = [ct, len(filename_list)-ct]
-colors = ['yellowgreen', 'lightcoral']
+labels = 'malware', 'normal', 'detection error'
+sizes = [ct, len(filename_list)-ct, len(fileToDetect_list)-len(filename_list)]
+colors = ['yellowgreen', 'lightcoral', 'red']
 explode = (0,0.1)
 plt.pie(sizes, explode=explode, labels=labels, colors=colors,
         autopct='%1.1f%%', shadow=True, startangle=90)
 # Set aspect ratio to be equal so that pie is drawn as a circle.
 plt.axis('equal')
 plt.show()
+
+
+
+'''
+Send result to DB
+
+VT_result, NN_result
+'''
+
+
+for key in VT_result.keys():
+	(VT_class, VT_count) = NN_result.get(key)
+	if NN_result.get(key) != None:
+		# both
+	else:
+		# only VT
+
+'''
+if detection_result is [0 0] -> normal
+if detection_result is [0 1] -> malware
+else -> detection error
+'''
