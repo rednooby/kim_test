@@ -378,7 +378,7 @@ while(i<len(fileToDetect_list)):
 	key = key_list[i%6] 
 	VT_result[fileToDetect_list[i]] = virusTotal(hash_list[i], str(fileToDetect_list[i]), fileToDetect_list[i], key)
 	time.sleep(15/float(len(key_list)))
-	i++
+	i += 1
 '''
 for i in range(len(fileToDetect_list)):
 	key = "408377a089c6dd9860e6006750c9e832ca8a73d9bb4825e47bbf8ea1ca5c1a5f"
@@ -481,6 +481,7 @@ print 'Detection rate: %d/%d ' % (ct,len(filename_list))
 print '%f' % (ct/float(len(filename_list)))
 
 print NN_result
+
 '''
 graph
 '''
@@ -497,7 +498,10 @@ plt.pie(sizes, explode=explode, labels=labels, colors=colors,
 plt.axis('equal')
 plt.show()
 
-
+exit(-1)
+'''
+insert result to DB
+'''
 con = mysql.connector.connect(host='192.168.0.116',
                                   user='test',
                                   password='qwer1234',
