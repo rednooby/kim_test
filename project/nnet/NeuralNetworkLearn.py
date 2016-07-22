@@ -190,6 +190,7 @@ def NeuralNetworkLearn(Layers,learnRate,errFunChgLmt,weightChgLmt,maxRound,train
 			bestNetwork = network
 			bestNetwork.bestTrainErrFun = min_trainErrFun
 			bestNetwork.bestTrainErrFunRate = min_trainErrFunRate
+			print 'lower training error'
 		#while errFunChg > errFunChgLmt and weightChg > weightChgLmt and round_count < maxRound:
 		'''
 		print errFunChg

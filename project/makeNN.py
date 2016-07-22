@@ -38,7 +38,7 @@ MODIFY THE AMOUNT OF TRAINING DATA
 #####################################################
 '''
 
-amount_malware = 1000
+amount_malware = 400
 mal=[]
 nor=[]
 for ngram in ngram_list:
@@ -68,12 +68,12 @@ print ''
 '''
 set arguments for NN
 '''
-Layers=[2000,1300,2]
+Layers=[2000,1000,500,2]
 #errFunChgLmt = 1e-6
-errFunChgLmt = -1 # never stop(< 0)
-#weightChgLmt = 1e-4
-weightChgLmt = 0
-maxRound = 300
+errFunChgLmt = 0 # never stop(< 0)
+weightChgLmt = 1e-4
+#weightChgLmt = 0
+maxRound = 1000
 learnRate = 1
 
 '''
@@ -100,14 +100,14 @@ weight_list = []
 for i in range(weight_len):
 	# split some weight into small size it is too large (DB INSERT ERROR)
 	# merge later(in Detection code)
-	if len(bestNetwork.w[i]) > 1000:
-		div_len=len(bestNetwork.w[i])/3
+	if len(bestNetwork.w[i]) > 400:
+		div_len_by=int(len(bestNetwork.w[i])/400)
+		div_len=len(bestNetwork.w[i])/div_len_by
 		weight_list.append(bestNetwork.w[i][0:div_len].tolist())
 		weight_list.append(bestNetwork.w[i][div_len:div_len*2].tolist())
 		weight_list.append(bestNetwork.w[i][div_len*2:].tolist())
 	else:
 		weight_list.append(bestNetwork.w[i].tolist())
-
 
 '''
 insert weight into DB
