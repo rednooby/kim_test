@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import urllib
 import urllib2
 import time
+import mysql.connector
 
 alphabet = 'abcdef'
 
@@ -322,11 +323,11 @@ def virusTotal(resource, element, fileName, APIkey):
 
     if result < 10: # 정상 파일 ---------------------------------------------------------
         print "  %s : normal (%d engines)" % (fileName, result)
-        return (0, result)
+        return (0, result, tempResource)
     # ------------------------------------[----------------------------------------------------------
     else: # 바이러스 파일이다. => 데이터 베이스에 적재할 경우의 수 존재
         print "  %s : malware (%d engines)" % (fileName, result)
-        return (1 ,result)
+        return (1 ,result, tempResource)
 
 
 '''
@@ -363,17 +364,25 @@ fileToDetect_list = temp_list
 '''
 ## Detection by Virus Total API
 '''
-
-'''
 print 'Virus Total API Detection Result'
+
+k1 = "408377a089c6dd9860e6006750c9e832ca8a73d9bb4825e47bbf8ea1ca5c1a5f"
+k2 = "c2f5edb9c68df4a96b67276a4c66a522ae316f33781ff026a49381a6ba2e77f2"
+k3 = "cda13808c3ce0dfc3ee40fff23f0b3acfbbc648442370a777d6125504455ce6d"
+k4 = "5b8d384d78cdfb06187891ba71ef718634bc97e3c720da968beadf5ef654165c"
+k5 = "8c70bb7653fcbade33a6364e991d1fac614128810c7cbc51cec6aee35d8b6ed9"
+key_list = [k1,k2,k3,k4,k5]
 VT_result = dict()
+i=0
+while(i<len(fileToDetect_list)):
+	key = key_list[i%6] 
+	VT_result[fileToDetect_list[i]] = virusTotal(hash_list[i], str(fileToDetect_list[i]), fileToDetect_list[i], key)
+	time.sleep(15/float(len(key_list)))
+	i++
+'''
 for i in range(len(fileToDetect_list)):
 	key = "408377a089c6dd9860e6006750c9e832ca8a73d9bb4825e47bbf8ea1ca5c1a5f"
-	(ret, vt_count) = virusTotal(hash_value[i], str(fileToDetect_list[i]), fileToDetect_list[i], key)
-	if ret == 1:
-		VT_result[fileToDetect_list[i]] = (1, vt_count)
-	else:
-		VT_result[fileToDetect_list[i]] = (0, vt_count)
+	VT_result[fileToDetect_list[i]] = virusTotal(hash_list[i], str(fileToDetect_list[i]), fileToDetect_list[i], key)
 	time.sleep(15)
 '''
 
@@ -475,10 +484,13 @@ print NN_result
 '''
 graph
 '''
-labels = 'malware', 'normal', 'detection error'
-sizes = [ct, len(filename_list)-ct, len(fileToDetect_list)-len(filename_list)]
-colors = ['yellowgreen', 'lightcoral', 'red']
-explode = (0,0.1)
+mal_size = ct
+nor_size = len(filename_list)-ct
+err_size = len(fileToDetect_list)-len(filename_list)
+labels = 'malware:'+str(mal_size), 'normal:'+str(nor_size), 'detection error:'+str(err_size)
+sizes = [mal_size, nor_size, err_size]
+colors = ['orange', 'green', 'grey']
+explode = (0,0,0)
 plt.pie(sizes, explode=explode, labels=labels, colors=colors,
         autopct='%1.1f%%', shadow=True, startangle=90)
 # Set aspect ratio to be equal so that pie is drawn as a circle.
@@ -486,23 +498,44 @@ plt.axis('equal')
 plt.show()
 
 
+con = mysql.connector.connect(host='192.168.0.116',
+                                  user='test',
+                                  password='qwer1234',
+                                  database='jh')
 
-'''
-Send result to DB
-
-VT_result, NN_result
-'''
-
-
+cur = con.cursor()
 for key in VT_result.keys():
-	(VT_class, VT_count) = NN_result.get(key)
-	if NN_result.get(key) != None:
-		# both
+	#(1, vt_count, hashval)
+	(result,vtcount,hashvalue) = VT_result[key]
+	test = "insert into s2 values("
+	test += "'"
+	test += hashvalue # Hash value [col 1 name: hex ]
+	test += "'"
+	test += ","
+	test += "'"
+	nn_result = NN_result.get(key)
+	if nn_result == 1:
+		test += "YES"
+	elif nn_result == 0:
+		test += "NO"
 	else:
-		# only VT
-
-'''
-if detection_result is [0 0] -> normal
-if detection_result is [0 1] -> malware
-else -> detection error
-'''
+		test += ""
+	test += "'"
+	test += ","
+	test += "'"
+	test += str(vtcount)+"/"+"56"  # "35/55" value [col3 name : vt]
+	test += "'"
+	test += ","
+	test += "'"
+	f_name = key
+	cnt = f_name.count("\\")
+	if not cnt == 0:
+		s = f_name.split("\\")
+		f_name = s[-1] 
+	test += f_name  # "filename" value [col4 name : filename]
+	test += "'"
+	test += " );"
+	cur.execute(test)
+con.commit()
+con.close()
+print "result inserted to DB"
