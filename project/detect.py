@@ -358,7 +358,7 @@ for file in fileToDetect_list:
 		hash_list.append(hash_value)
 print 'Done.'
 print ''
-fileToDetect_list = temp_list
+fileToDetect_list = temp_list	# list of files to detect
 
 
 '''
@@ -375,23 +375,18 @@ key_list = [k1,k2,k3,k4,k5]
 VT_result = dict()
 i=0
 while(i<len(fileToDetect_list)):
-	key = key_list[i%6] 
+	key = key_list[i%5] 
 	VT_result[fileToDetect_list[i]] = virusTotal(hash_list[i], str(fileToDetect_list[i]), fileToDetect_list[i], key)
+	# (result, VT_count, File Name)
 	time.sleep(15/float(len(key_list)))
 	i += 1
-'''
-for i in range(len(fileToDetect_list)):
-	key = "408377a089c6dd9860e6006750c9e832ca8a73d9bb4825e47bbf8ea1ca5c1a5f"
-	VT_result[fileToDetect_list[i]] = virusTotal(hash_list[i], str(fileToDetect_list[i]), fileToDetect_list[i], key)
-	time.sleep(15)
-'''
 
 
 '''
 NGRAM EXTRACTION
 '''
-detect_list=[]
-filename_list=[]
+detect_list=[]	# data
+filename_list=[]	# file name
 print 'Extracting ngram...'
 for file in fileToDetect_list:
 	stu = _Machine()
@@ -419,7 +414,7 @@ for filename in filename_list:
 print ''
 print "%d files" % len(filename_list)
 print ''
-dataToCheck = np.array(detect_list, dtype='f')
+dataToCheck = np.array(detect_list, dtype='f')	# Test Data
 
 
 
@@ -436,16 +431,12 @@ data = collection.find()
 tl=[]
 for d in data:
 	tl.append(d['bestNN_weight'])
-
 tl_len = len(tl)
-
 # merge splitted weight
 for i in range(tl_len-1,0,-1):
-	print i
 	if len(tl[i][0]) == len(tl[i-1][0]):
 		tl[i-1] = tl[i-1]+tl[i]
 		del tl[i]
-
 
 for i in range(len(tl)):
 	tl[i] = np.array(tl[i])
@@ -466,11 +457,9 @@ print detection_result
 '''
 result counting
 '''
-NN_result = dict()
+NN_result = dict()	# {filename: 0 or 1}
 ct=0
-#for i in detection_result:
 for i in range(len(detection_result)):
-	#if i.tolist() == [0.0, 1.0]:
 	if detection_result[i].tolist() == [0.0, 1.0]:
 		ct += 1
 		NN_result[filename_list[i]] = 1
@@ -479,8 +468,6 @@ for i in range(len(detection_result)):
 
 print 'Detection rate: %d/%d ' % (ct,len(filename_list))
 print '%f' % (ct/float(len(filename_list)))
-
-print NN_result
 
 '''
 graph
