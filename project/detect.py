@@ -333,13 +333,16 @@ def virusTotal(resource, element, fileName, APIkey):
 '''
 open input_file
 '''
+'''
 # arguments option
 if len(sys.argv) is not 2:
         print >> sys.stderr, 'Usage: python %s [PATH TO DETECT]' % sys.argv[0]
         exit(1)
-
-
 f_list = get_file_list(sys.argv[1])
+'''
+
+f_list = get_file_list("C:\\DetectionTest")
+
 fileToDetect_list=[]
 make_1d_list(fileToDetect_list,f_list)
 
