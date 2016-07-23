@@ -1,7 +1,7 @@
 # -*- coding: utf -8 -*-
-# Á¤»ó ÆÄÀÏ ÀûÀç ÄÚµå
+# ì •ìƒ íŒŒì¼ ì ì¬ ì½”ë“œ
 # 2016-07-21 ver3.0
-# ÀÛ¼ºÀÚ: ±èÁØÇö
+# ì‘ì„±ì: ê¹€ì¤€í˜„
 
 # ----------- [import section] ---------------
 import mysql.connector
@@ -17,86 +17,85 @@ import pymongo
 
 # --------------------------------------------
 
-# func [1] ÇØ½¬°ª ÃßÃâ [¹®Á¦ ¾ø´Ù.]
+# func [1] í•´ì‰¬ê°’ ì¶”ì¶œ [ë¬¸ì œ ì—†ë‹¤.]
 def sha1_for_largefile(filepath, blocksize=8192):
     sha_1 = hashlib.sha1()
     try:
         f = open(filepath, "rb")
     except IOError as e:
         print("file open error", e)
-        return '''Á¾·á'''
+        return '''ì¢…ë£Œ'''
     while True:
         buf = f.read(blocksize)
         if not buf:
             break
         sha_1.update(buf)
-    return sha_1.hexdigest()  # ÇØ½Ã°ªÀ» ¸®ÅÏÇÑ´Ù.
+    return sha_1.hexdigest()  # í•´ì‹œê°’ì„ ë¦¬í„´í•œë‹¤.
 
 
 # end of [ sha1_for_largefile ] function
 
-# func [2] ÇØ½¬°ª ÀÌ µ¥ÀÌÅÍ º£ÀÌ½º¿¡ ÀÖ´ÂÁö ¾ø´ÂÁö È®ÀÎÇÒ °Í
-# hashString value ´Â ÀÓÀÇÀÇ ÆÄÀÏ¿¡ hash °ªÀÌ ÀÎÀÚ·Î µé¾î¿Â´Ù.
+# func [2] í•´ì‰¬ê°’ ì´ ë°ì´í„° ë² ì´ìŠ¤ì— ìˆëŠ”ì§€ ì—†ëŠ”ì§€ í™•ì¸í•  ê²ƒ
+# hashString value ëŠ” ì„ì˜ì˜ íŒŒì¼ì— hash ê°’ì´ ì¸ìë¡œ ë“¤ì–´ì˜¨ë‹¤.
 def isExist(hashString):
     result = 0
     connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
-    db = connection.test  # testDB Á¢±Ù
-    collection = db.hashData  # testDBÀÇ hashData¿¡ Á¢±Ù
+    db = connection.test  # testDB ì ‘ê·¼
+    collection = db.hashData  # testDBì˜ hashDataì— ì ‘ê·¼
     data = collection.find_one({"hexvalue": hashString})
 
-    if data == None:  # µ¥ÀÌÅÍ º£ÀÌ½º¿¡ Á¸ÀçÇÏÁö ¾Ê±â ´ë¹®¿¡ ¹ÙÀÌ·¯½º ÅäÅ»·Î ³Ñ±ä´Ù.
-        print "[1] ¹ÙÀÌ·¯½º ÅäÅ»·Î ³Ñ±â°Ú½À´Ï´Ù."
+    if data == None:  # ë°ì´í„° ë² ì´ìŠ¤ì— ì¡´ì¬í•˜ì§€ ì•Šê¸° ëŒ€ë¬¸ì— ë°”ì´ëŸ¬ìŠ¤ í† íƒˆë¡œ ë„˜ê¸´ë‹¤.
+        print "[1] ë°”ì´ëŸ¬ìŠ¤ í† íƒˆë¡œ ë„˜ê¸°ê² ìŠµë‹ˆë‹¤."
         result = 0
         return result
 
-    else:  # µ¥ÀÌÅÍ º£ÀÌ½º¿¡ Á¸ÀçÇÏ±â ¹ÙÀÌ·¯½º ÀÎ°É·Î ³¡³½´Ù.
-        print "[1] ¾Ç¼ºÄÚµå ÆÄÀÏ ÀÔ´Ï´Ù."
+    else:  # ë°ì´í„° ë² ì´ìŠ¤ì— ì¡´ì¬í•˜ê¸° ë°”ì´ëŸ¬ìŠ¤ ì¸ê±¸ë¡œ ëë‚¸ë‹¤.
+        print "[1] ì•…ì„±ì½”ë“œ íŒŒì¼ ì…ë‹ˆë‹¤."
         result = 1
         return result
 
 
-# func [3] ÇØ½¬°ª ¹ÙÀÌ·¯½º ÅäÅ»·Î ³Ñ±â±â
-def virusTotal(resource, element, filName):
+# func [3] í•´ì‰¬ê°’ ë°”ì´ëŸ¬ìŠ¤ í† íƒˆë¡œ ë„˜ê¸°ê¸°
+def virusTotal(resource, element, filName, key, count):
     tempResource = str(resource)
-    '''
+
     url = "https://www.virustotal.com/vtapi/v2/file/report"
     parameters = {"resource": tempResource,
-                  "apikey": ""} # ÃÖÁøÇå api
+                  "apikey": key}
     data = urllib.urlencode(parameters)
     req = urllib2.Request(url, data)
     response = urllib2.urlopen(req)
     json_str = response.read()
-    time.sleep(15) # 15 second delay !!!
+
     json_str = str(json_str)
-    print json_str
+    #print json_str
     result = json_str.count("true")
 
     print "[File_Name] : ", filName
-    '''
-    result = 0
-    if result <= 10:  # Á¤»ó ÆÄÀÏ ---------------------------------------------------------
-        print "[°á°ú] Á¤»óÆÄÀÏ ÀÔ´Ï´Ù. "
-        # [Á¤»óÆÄÀÏ] ÇØ½Ã°ªÀ» µ¥ÀÌÅÍ º£ÀÌ½º¿¡ ÀûÀçÇÏÁö ¾Ê´Â´Ù.
+
+    if result <= 10:  # ì •ìƒ íŒŒì¼ ---------------------------------------------------------
+        print "[ê²°ê³¼] ì •ìƒíŒŒì¼ ì…ë‹ˆë‹¤. "
+        # [ì •ìƒíŒŒì¼] í•´ì‹œê°’ì„ ë°ì´í„° ë² ì´ìŠ¤ì— ì ì¬í•˜ì§€ ì•ŠëŠ”ë‹¤.
     # ----------------------------------------------------------------------------------------------
 
-    else:  # ¹ÙÀÌ·¯½º ÆÄÀÏÀÌ´Ù. => µ¥ÀÌÅÍ º£ÀÌ½º¿¡ ÀûÀçÇÒ °æ¿ìÀÇ ¼ö Á¸Àç
+    else:  # ë°”ì´ëŸ¬ìŠ¤ íŒŒì¼ì´ë‹¤. => ë°ì´í„° ë² ì´ìŠ¤ì— ì ì¬í•  ê²½ìš°ì˜ ìˆ˜ ì¡´ì¬
         # result > 10
-        print "[°á°ú] ¾Ç¼º ÆÄÀÏ ÀÔ´Ï´Ù. "
-        # [¾Ç¼ºÆÄÀÏ] ÇØ½Ã°ªÀ» µ¥ÀÌÅÍ º£ÀÌ½º¿¡ ÀûÀçÇÑ´Ù.
+        print "[ê²°ê³¼] ì•…ì„± íŒŒì¼ ì…ë‹ˆë‹¤. "
+        # [ì•…ì„±íŒŒì¼] í•´ì‹œê°’ì„ ë°ì´í„° ë² ì´ìŠ¤ì— ì ì¬í•œë‹¤.
         connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
-        db = connection.test  # testDB Á¢±Ù
-        collection = db.hashData  # testDBÀÇ testCollection Á¢±Ù
+        db = connection.test  # testDB ì ‘ê·¼
+        collection = db.hashData  # testDBì˜ testCollection ì ‘ê·¼
         data = collection.find_one({"hexvalue": tempResource})
 
-        if data == None:  # µ¥ÀÌÅÍ º£ÀÌ½º¿¡ Á¸ÀçÇÏÁö ¾Ê±â ¶§¹®¿¡ db¿¡ ÀûÀçÇÑ´Ù.
-            print " µ¥ÀÌÅÍ º£ÀÌ½º¿¡ Á¸ÀçÇÏÁö ¾Ê±â ¶§¹®¿¡ db ¿¡ ÀûÀçÇÑ´Ù."
+        if data == None:  # ë°ì´í„° ë² ì´ìŠ¤ì— ì¡´ì¬í•˜ì§€ ì•Šê¸° ë•Œë¬¸ì— dbì— ì ì¬í•œë‹¤.
+            print " ë°ì´í„° ë² ì´ìŠ¤ì— ì¡´ì¬í•˜ì§€ ì•Šê¸° ë•Œë¬¸ì— db ì— ì ì¬í•œë‹¤."
             collection.insert({"hexvalue": tempResource})
 
-        else:  # µ¥ÀÌÅÍ º£ÀÌ½º¿¡ Á¸ÀçÇÏ±â ´ë¹®¿¡ ÀûÀçÇÏÁö ¾Ê´Â´Ù.
-            print "¾Ç¼ºÄÚµå ÆÄÀÏÀÌ µ¥ÀÌÅÍ º£ÀÌ½º¿¡ Á¸ÀçÇÕ´Ï´Ù."
+        else:  # ë°ì´í„° ë² ì´ìŠ¤ì— ì¡´ì¬í•˜ê¸° ëŒ€ë¬¸ì— ì ì¬í•˜ì§€ ì•ŠëŠ”ë‹¤.
+            print "ì•…ì„±ì½”ë“œ íŒŒì¼ì´ ë°ì´í„° ë² ì´ìŠ¤ì— ì¡´ì¬í•©ë‹ˆë‹¤."
 
     '''
-    # [ À¥À¸·Î ³¯¸± µ¥ÀÌÅÍ º£ÀÌ½º ] ==============================================================
+    # [ ì›¹ìœ¼ë¡œ ë‚ ë¦´ ë°ì´í„° ë² ì´ìŠ¤ ] ==============================================================
     count = filName.count("\\")
     if not count == 0:
         s = filName.split("\\")
@@ -106,14 +105,14 @@ def virusTotal(resource, element, filName):
     end = json_str.find("sha256")-3
     response1 = json_str[start:end] + "/56"
     # ===========================================================================================
-    print "À¥À¸·Î µ¥ÀÌÅÍ °á°ú¸¦ ³¯¸°´Ù."
+    print "ì›¹ìœ¼ë¡œ ë°ì´í„° ê²°ê³¼ë¥¼ ë‚ ë¦°ë‹¤."
     response = ""
     if result == 0:
         response = "NO"
-        print "Á¤»ó ÆÄÀÏ·Î µ¥ÀÌÅÍ¸¦ ³Ñ±â°Ú½À´Ï´Ù."
+        print "ì •ìƒ íŒŒì¼ë¡œ ë°ì´í„°ë¥¼ ë„˜ê¸°ê² ìŠµë‹ˆë‹¤."
     else:
         response = "YES"
-        print "¾Ç¼º ÆÄÀÏ·Î µ¥ÀÌÅÍ¸¦ ³Ñ±â°Ú½À´Ï´Ù."
+        print "ì•…ì„± íŒŒì¼ë¡œ ë°ì´í„°ë¥¼ ë„˜ê¸°ê² ìŠµë‹ˆë‹¤."
     con = mysql.connector.connect(host='192.168.0.116',
                                   user='test',
                                   password='qwer1234',
@@ -142,36 +141,36 @@ def virusTotal(resource, element, filName):
     con.close()
     # ==========================================================================================
     '''
-    result_1 = 0
+
     stu = projectMain._Machine()
     step1 = stu.fileBinary_Extraction(element)  # ---------------------------------> step 1
     if step1 == 0:
-        print "error ÀÎÇÑ Á¾·á"
+        print "error ì¸í•œ ì¢…ë£Œ"
         return ''' The End '''
 
     else:  # step1 == 1
-        # element´Â ÆÄÀÏ°æ·Î¿Í ÆÄÀÏÀÌ¸§ÀÌ µé¾îÀÖ´Â ¹®ÀÚ¿­ÀÌ´Ù.
+        # elementëŠ” íŒŒì¼ê²½ë¡œì™€ íŒŒì¼ì´ë¦„ì´ ë“¤ì–´ìˆëŠ” ë¬¸ìì—´ì´ë‹¤.
         result_1 = stu.PE_Structure_elfanewString()  # ----------------------------> step 2
         if result_1 == 0:
-            print "error [1] [Á¾·á]"
+            print "error [1] [ì¢…ë£Œ]"
             return ''' The End'''
         else:
             stu.PE_Structure_elfanewInt()  # --------------------------------------> step 3
             result_2 = stu.PE_Structure_sectionText_start_size(element)  # --------> step 4
             if result_2 == 0:
-                print "error [2] [Á¾·á]"
+                print "error [2] [ì¢…ë£Œ]"
                 return '''The End'''
             else:  # result_2 == 1
                 stu.PE_Structure_sectionText_End()  # -------------------------> step 5
                 result_3 = stu.ngramConstruct()  # ---------------------------------------> step 6
                 if result_3 == 1:
                     result_4 = stu.ngramSort()  # --------------------------------------------> step 7
-                    # time.sleep(10)  # 10ÃÊ¸¦ ±â´Ù·Á¶ó
+                    # time.sleep(10)  # 10ì´ˆë¥¼ ê¸°ë‹¤ë ¤ë¼
                     if result_4 == 0:
-                        print "error [3] Á¾·á"
+                        print "error [3] ì¢…ë£Œ"
                         return '''The End'''
                     else:
-                        stu.dataBase(result)  # ---------------------------------------> step 8
+                        stu.dataBase(result, count)  # ---------------------------------------> step 8
                 else:
                     return'''The End'''
 
@@ -181,17 +180,53 @@ def virusTotal(resource, element, filName):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<  main >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 def main():
-    dataCount = 1
-    testList = glob.glob("C:\\Users\\Win7\\Desktop\\normal\\*")  # °Ë»çÇÒ ÆÄÀÏÀÇ °æ·Î
-    for data in testList:
-        print " ================== [ Å×½ºÆ® ÇöÈ² ] [{0:d}] ¹øÂ° µ¥ÀÌÅÍ ÀÔ´Ï´Ù. ===================== ".format(dataCount)
-        resource = sha1_for_largefile(str(data))  # ÇØ½Ã°ª ÃßÃâ
+    f_w = open("report.txt", "w")
+    dataCount = 0
+    oCount = 0
+    testList = glob.glob("C:\\Users\\kimjh\\Desktop\\normal\\*")  # ê²€ì‚¬í•  íŒŒì¼ì˜ ê²½ë¡œ
+
+    # virus total api ----------------------------------------------------------------
+    k1 = "408377a089c6dd9860e6006750c9e832ca8a73d9bb4825e47bbf8ea1ca5c1a5f"
+    k2 = "c2f5edb9c68df4a96b67276a4c66a522ae316f33781ff026a49381a6ba2e77f2"
+    k3 = "cda13808c3ce0dfc3ee40fff23f0b3acfbbc648442370a777d6125504455ce6d"
+    k4 = "5b8d384d78cdfb06187891ba71ef718634bc97e3c720da968beadf5ef654165c"
+    k5 = "8c70bb7653fcbade33a6364e991d1fac614128810c7cbc51cec6aee35d8b6ed9"
+    k6 = "a7677e9d9aab695aa11a53ac6d64caa11c4573a47d7bfc4003735a54fef0bca4"
+    k7 = "559615cef6ec81a70207208195b6f682dfc9ec7bb9e32609b5640b9606c1c36f"
+    k8 = "d91aec94b6d5494ed7ab5a7ac79ca3dedc0051ada686812393459b21dc630704"
+    k9 = "2d5d0f6b8a9d5eabb38f084d4c3a6d0a74f27ea592e026285dad50298bc34b29"
+    k10 = "7e6f911e8e3c4601ec9a27df6f3ab4e9aaf1f66380c44ff83610ecd688ddfa19"
+    key_list = [k1, k2, k3, k4, k5, k6, k7, k8, k9, k10]
+    # ---------------------------------------------------------------------------------
+    i = 0
+
+    while(i < len(testList)):
+        key = key_list[i%len(key_list)]
+        print " ================== [ í…ŒìŠ¤íŠ¸ í˜„í™© ] [{0:d}] ë²ˆì§¸ ë°ì´í„° ì…ë‹ˆë‹¤. ===================== ".format(dataCount+1)
+        resource = sha1_for_largefile(str(testList[i]))  # í•´ì‹œê°’ ì¶”ì¶œ
         result = isExist(resource)
         if result == 0:
-            virusTotal(resource, str(data), data)
+            virusTotal(resource, str(testList[i]), testList[i], key, oCount)
         dataCount += 1
+        time.sleep(15/float(len(key_list)))
+        i += 1
 
+    f_w.write("---------------------- [ ê²°ê³¼ ] ----------------------------")
+    f_w.write("\n")
+    f_w.write("[ì „ì²´ íŒŒì¼ ê°¯ìˆ˜ => ")
+    f_w.write(str(dataCount))
+    f_w.write("]")
+    f_w.write("\n")
+    f_w.write("[ì ì¬ëœ ngram ê°¯ìˆ˜ => ")
+    f_w.write(str(oCount))
+    f_w.write("]")
+    f_w.write("\n")
+    f_w.write("[ì ì¬ë˜ì§€ ëª»í•œ ngram ê°¯ìˆ˜ => ")
+    f_w.write(str(dataCount-oCount))
+    f_w.write("]")
+    f_w.write("\n")
+    f_w.write("------------------------------------------------------------")
+    f_w.close()
 
 if __name__ == "__main__":
     main()
-
