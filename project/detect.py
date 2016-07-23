@@ -18,6 +18,7 @@ import urllib
 import urllib2
 import time
 import mysql.connector
+import webbrowser
 
 alphabet = 'abcdef'
 
@@ -544,3 +545,6 @@ for key in VT_result.keys():
 con.commit()
 con.close()
 print "result inserted to DB"
+
+url='http://192.168.0.102:8080/3_ML/hash_list.jsp'
+webbrowser.open(url)
