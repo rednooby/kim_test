@@ -485,6 +485,7 @@ print '%f' % (ct/float(len(filename_list)))
 '''
 graph
 '''
+'''
 mal_size = ct
 nor_size = len(filename_list)-ct
 err_size = len(fileToDetect_list)-len(filename_list)
@@ -497,8 +498,8 @@ plt.pie(sizes, explode=explode, labels=labels, colors=colors,
 # Set aspect ratio to be equal so that pie is drawn as a circle.
 plt.axis('equal')
 plt.show()
+'''
 
-exit(-1)
 '''
 insert result to DB
 '''
