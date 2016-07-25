@@ -486,23 +486,7 @@ for i in range(len(detection_result)):
 print 'Detection rate: %d/%d ' % (ct,len(filename_list))
 print '%f' % (ct/float(len(filename_list)))
 
-'''
-graph
-'''
-'''
-mal_size = ct
-nor_size = len(filename_list)-ct
-err_size = len(fileToDetect_list)-len(filename_list)
-labels = 'malware:'+str(mal_size), 'normal:'+str(nor_size), 'detection error:'+str(err_size)
-sizes = [mal_size, nor_size, err_size]
-colors = ['orange', 'green', 'grey']
-explode = (0,0,0)
-plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-        autopct='%1.1f%%', shadow=True, startangle=90)
-# Set aspect ratio to be equal so that pie is drawn as a circle.
-plt.axis('equal')
-plt.show()
-'''
+
 
 '''
 insert result to DB
@@ -551,3 +535,19 @@ print "result inserted to DB"
 
 url='http://192.168.0.147:8080/3_ML/hash_list.jsp'
 webbrowser.open(url)
+
+'''
+graph
+'''
+mal_size = ct
+nor_size = len(filename_list)-ct
+err_size = len(fileToDetect_list)-len(filename_list)
+labels = 'malware:'+str(mal_size), 'normal:'+str(nor_size), 'detection error:'+str(err_size)
+sizes = [mal_size, nor_size, err_size]
+colors = ['orange', 'green', 'grey']
+explode = (0,0,0)
+plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+        autopct='%1.1f%%', shadow=True, startangle=90)
+# Set aspect ratio to be equal so that pie is drawn as a circle.
+plt.axis('equal')
+plt.show()
