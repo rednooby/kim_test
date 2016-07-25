@@ -334,15 +334,18 @@ def virusTotal(resource, element, fileName, APIkey):
 '''
 open input_file
 '''
-'''
 # arguments option
-if len(sys.argv) is not 2:
-        print >> sys.stderr, 'Usage: python %s [PATH TO DETECT]' % sys.argv[0]
-        exit(1)
-f_list = get_file_list(sys.argv[1])
-'''
-
-f_list = get_file_list("C:\\DetectionTest")
+if len(sys.argv) is 1:
+    print "Default Path: C:\\DetectionTest"
+    print ''
+    f_list = get_file_list("C:\\DetectionTest")
+elif len(sys.argv) is not 2:
+    print >> sys.stderr, 'Usage: python %s [PATH TO DETECT]' % sys.argv[0]
+    exit(1)
+else:
+    print "Path: %s" % sys.argv[1]
+    print ''
+    f_list = get_file_list(sys.argv[1])
 
 fileToDetect_list=[]
 make_1d_list(fileToDetect_list,f_list)
@@ -546,5 +549,5 @@ con.commit()
 con.close()
 print "result inserted to DB"
 
-url='http://192.168.0.102:8080/3_ML/hash_list.jsp'
+url='http://192.168.0.147:8080/3_ML/hash_list.jsp'
 webbrowser.open(url)
