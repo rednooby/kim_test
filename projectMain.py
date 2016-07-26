@@ -40,7 +40,6 @@ class _Machine:
             return 1
 
         except:
-
             print "error [fileBinary_Extraction]"
             return 0
         # end of fileBinary_Extraction
@@ -190,7 +189,7 @@ class _Machine:
             return 0
 
     def ngramSort(self):  # 7
-        f_w = open("weight.txt", "w")
+
         ngram_dict = dict()  # dictionary[key:value]
         for i in range(len(self.hex_list) - 8):
             ngram = str(self.hex_list[i])
@@ -212,28 +211,19 @@ class _Machine:
         print d3
         print len(d3)
         for ngram in d3:
-            try:
-                self.testList.append((int(ngram[0:2], 16)))
-                self.testList.append((int(ngram[3:5], 16)))
-                self.tetList.append((int(ngram[6:8], 16)))
-                self.testList.append((int(ngram[9:11], 16)))
-                f_w.write(self.testList)
-                f_w.write("\n")
-                self.totalCount += 1
-                print self.totalCount
-                # end of ngramSort
-            except:
-                print "error"
-                f_w.close()
-                return
-
-        f_w.close()
+            self.testList.append((int(ngram[0:2], 16)))
+            self.testList.append((int(ngram[3:5], 16)))
+            self.testList.append((int(ngram[6:8], 16)))
+            self.testList.append((int(ngram[9:11], 16)))
+            self.totalCount += 1
+            # end of ngramSort
 
     def dataBase(self, result, count):  # 8
         self.controlResult = result
         if not self.totalCount == 500:
             print "ngram 의 갯수가 500 개가 되지 않습니다."
             print "ngram 의 갯수 {}".format(self.totalCount)
+            print "self.testList {}".format(self.testList)
             return ''' 종료 '''
         else:  # --> self.totalCount == 500
             if self.controlResult == 0:  # 정상파일 =======================================================
@@ -251,29 +241,21 @@ class _Machine:
                 else:
                     print "있는 데이터 입니다. 삽입하지 않겠습니다."
 
-            else:  # 악성성 파일입니다. ====================================================================
+            else:  # 악성 파일입니다. ====================================================================
 
                 print "비정상파일 입니다.[DB]"
 
                 connection = pymongo.MongoClient("192.168.0.116", 27017)  # Mongodb_TargetIp, portNumber
-
                 db = connection.test  # testDB 접근
-
                 collection = db.ngramData  # testDB의 testCollection 접근
-
                 self.testList.append(1)  # innormal mark : 1
-
                 data = collection.find_one({"ngram": self.testList})
-
                 if data == None:
-
                     collection.insert({"ngram": self.testList})
                 else:
-
                     print data
                     print "있는 데이터 입니다.[ 삽입하지 않겠습니다. ]"
                     # end of dataBase
-
 
 def main():
     stu = _Machine()

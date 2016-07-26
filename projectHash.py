@@ -30,6 +30,7 @@ def sha1_for_largefile(filepath, blocksize=8192):
         if not buf:
             break
         sha_1.update(buf)
+
     return sha_1.hexdigest()  # 해시값을 리턴한다.
 
 
@@ -56,24 +57,24 @@ def isExist(hashString):
 
 
 # func [3] 해쉬값 바이러스 토탈로 넘기기
-def virusTotal(resource, element, filName, key, count):
+def virusTotal(resource, filName, key, count):
     tempResource = str(resource)
 
     url = "https://www.virustotal.com/vtapi/v2/file/report"
     parameters = {"resource": tempResource,
-                  "apikey": key}
+                  "apikey": key} # virus total api key
     data = urllib.urlencode(parameters)
     req = urllib2.Request(url, data)
     response = urllib2.urlopen(req)
     json_str = response.read()
 
     json_str = str(json_str)
-    #print json_str
+    print json_str
     result = json_str.count("true")
 
     print "[File_Name] : ", filName
 
-    if result <= 10:  # 정상 파일 ---------------------------------------------------------
+    if result == 0:  # 정상 파일 ---------------------------------------------------------
         print "[결과] 정상파일 입니다. "
         # [정상파일] 해시값을 데이터 베이스에 적재하지 않는다.
     # ----------------------------------------------------------------------------------------------
@@ -105,6 +106,7 @@ def virusTotal(resource, element, filName, key, count):
     end = json_str.find("sha256")-3
     response1 = json_str[start:end] + "/56"
     # ===========================================================================================
+
     print "웹으로 데이터 결과를 날린다."
     response = ""
     if result == 0:
@@ -141,25 +143,24 @@ def virusTotal(resource, element, filName, key, count):
     con.close()
     # ==========================================================================================
     '''
-
     stu = projectMain._Machine()
-    step1 = stu.fileBinary_Extraction(element)  # ---------------------------------> step 1
+    step1 = stu.fileBinary_Extraction(filName)  # ---------------------------------> step 1
     if step1 == 0:
         print "error 인한 종료"
-        return ''' The End '''
+        return
 
     else:  # step1 == 1
         # element는 파일경로와 파일이름이 들어있는 문자열이다.
         result_1 = stu.PE_Structure_elfanewString()  # ----------------------------> step 2
         if result_1 == 0:
             print "error [1] [종료]"
-            return ''' The End'''
+            return
         else:
             stu.PE_Structure_elfanewInt()  # --------------------------------------> step 3
-            result_2 = stu.PE_Structure_sectionText_start_size(element)  # --------> step 4
+            result_2 = stu.PE_Structure_sectionText_start_size(filName)  # --------> step 4
             if result_2 == 0:
                 print "error [2] [종료]"
-                return '''The End'''
+                return
             else:  # result_2 == 1
                 stu.PE_Structure_sectionText_End()  # -------------------------> step 5
                 result_3 = stu.ngramConstruct()  # ---------------------------------------> step 6
@@ -168,11 +169,11 @@ def virusTotal(resource, element, filName, key, count):
                     # time.sleep(10)  # 10초를 기다려라
                     if result_4 == 0:
                         print "error [3] 종료"
-                        return '''The End'''
+                        return
                     else:
                         stu.dataBase(result, count)  # ---------------------------------------> step 8
                 else:
-                    return'''The End'''
+                    return
 
 
 # end of [ virusTotal ] function
@@ -206,7 +207,7 @@ def main():
         resource = sha1_for_largefile(str(testList[i]))  # 해시값 추출
         result = isExist(resource)
         if result == 0:
-            virusTotal(resource, str(testList[i]), testList[i], key, oCount)
+            virusTotal(resource, testList[i], key, oCount)
         dataCount += 1
         time.sleep(15/float(len(key_list)))
         i += 1
